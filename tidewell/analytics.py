@@ -148,3 +148,15 @@ def assumption_sensitivity(co: Company, terms: Terms):
                      (r.kpi["weekly_cost"] / base.kpi["weekly_cost"] - 1) if r.kpi["feasible"] else None,
                      ", ".join(co.city(d) for d in r.kpi["open_dcs"]) if r.kpi["feasible"] else ""))
     return pd.DataFrame(rows, columns=["assumption", "value", "status", "weekly_cost_usd", "change_vs_base", "open_dcs"])
+
+
+def late_delivery_sensitivity(co: Company, terms: Terms, base: chain.ChainResult):
+    """The share of safety stock that exists because deliveries arrive late depends entirely on how unreliable they are.
+    Scale the measured delivery-time spread of every DC and recompute."""
+    from . import safetystock
+    rows = []
+    for f in (0.0, 0.5, 1.0, 1.5, 2.0):
+        t = terms.with_(lead_time_by_dc=tuple((d, m, sd * f) for d, m, sd in terms.lead_time_by_dc))
+        s = safetystock.size(co, t, base.net)
+        rows.append((f, s.safety_stock, s.safety_demand_only, 1 - s.safety_demand_only / s.safety_stock if s.safety_stock else 0.0))
+    return pd.DataFrame(rows, columns=["delivery_spread_multiplier", "safety_stock_pallets", "demand_only_pallets", "share_from_late_deliveries"])

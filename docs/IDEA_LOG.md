@@ -33,6 +33,8 @@ optimisation would not.
 
 ## Corrections along the way
 
+- The 57% late-delivery share was presented as a finding. Varying the assumed delivery-time spread showed it is a property of the simulated data (32% at half, 77% at double), so every document now says so.
+
 - A first draft of the executive summary claimed that fewer DCs mean less safety stock. The data did not support it (average stock cost was almost flat), so the claim was removed.
 - A sensitivity run showed a holding-cost swing of exactly $0. That exposed a bug where scenario settings were ignored by the production plan. Fixed, and the swing is now non-zero.
 - The same draft called late deliveries "as much" as demand swings; they are 65% of the stock, so the wording now follows the number.

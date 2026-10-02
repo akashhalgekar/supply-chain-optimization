@@ -13,7 +13,7 @@
 | Cost of the lowest-cost network | $650,458 a week ($33.8M a year), $311 a pallet |
 | Saving against a reference case (all DCs open, weekly production) | 3.7%: $25,272 a week, $1.31M a year |
 | Production runs over 12 weeks | 168 become 39 |
-| Safety stock | 1,088 pallets; 57% exists because deliveries arrive late, not because demand swings |
+| Safety stock | 1,088 pallets; in this simulated company 57% exists because deliveries arrive late (32% at half the assumed delivery-time spread, 77% at double) |
 | The real decision | Closing Chicago is cheapest, but keeping all six DCs costs only 0.4% more and lifts next-day coverage from 68% to 80%. Recommendation: keep all six |
 | Resilience | Demand can grow 40% before the network breaks; losing Columbus or Dallas leaves demand unmet |
 

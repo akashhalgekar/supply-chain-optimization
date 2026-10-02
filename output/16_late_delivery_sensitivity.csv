@@ -1,0 +1,6 @@
+delivery_spread_multiplier,safety_stock_pallets,demand_only_pallets,share_from_late_deliveries
+0.0,464,464,0.0
+0.5,683,464,0.3206
+1.0,1088,464,0.5735
+1.5,1537,464,0.6981
+2.0,2002,464,0.7682

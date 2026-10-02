@@ -53,6 +53,7 @@ def main():
     sens = analytics.input_sensitivity(co, terms); sens.round(4).to_csv(f"{OUT}/11_input_sensitivity.csv", index=False)
     cts = analytics.cost_to_serve(co, base); cts.round(2).to_csv(f"{OUT}/12_cost_to_serve_by_market.csv", index=False)
     headroom = analytics.demand_headroom(co, terms)
+    late = analytics.late_delivery_sensitivity(co, terms, base); late.round(4).to_csv(f"{OUT}/16_late_delivery_sensitivity.csv", index=False)
     assum = analytics.assumption_sensitivity(co, terms); assum.round(4).to_csv(f"{OUT}/15_assumption_sensitivity.csv", index=False)
 
     # charts
@@ -70,7 +71,7 @@ def main():
     plots.cost_to_serve(cts, f"{CH}/10_cost_to_serve.png")
 
     with open(f"{DOCS}/EXECUTIVE_SUMMARY.md", "w") as fh:
-        fh.write(report.executive_summary(co, base, wf, sets, stress, sens, cts, headroom, tables))
+        fh.write(report.executive_summary(co, base, wf, sets, stress, sens, cts, headroom, tables, late))
 
     print(f"Open DCs: {', '.join(city(d) for d in net.open_dcs)}  |  weekly cost ${k['weekly_cost']:,.0f}  |  saving vs reference case {wf.share_of_reference.iloc[-1]:.1%}")
     print(f"Production runs {lots.weekly_runs_baseline} -> {lots.runs}  |  safety stock {stock.safety_stock:,} pallets  |  fill rate {stock.fill_rate:.1%}  |  demand headroom {headroom - 1:.0%}")

@@ -107,14 +107,16 @@ tok = dict(
     textbook=f"${ww_total:,.0f}", solver=f"${lots.total:,.0f}",
     demand=f"{sens.loc['Demand', 'swing_share_of_cost']:.0%}", demand1=f"{sens.loc['Demand', 'swing_share_of_cost']:.1%}", transport=f"{sens.loc['Transport rate per mile', 'swing_share_of_cost']:.1%}",
     dcfixed=f"{sens.loc['DC fixed cost', 'swing_share_of_cost']:.1%}", low=f"${cts.logistics_usd_per_pallet.min():.0f}", high=f"${cts.logistics_usd_per_pallet.max():.0f}")
+late_df = pd.read_csv(os.path.join(ROOT, "output", "16_late_delivery_sensitivity.csv")).set_index("delivery_spread_multiplier")["share_from_late_deliveries"]
+tok["late_half"], tok["late_double"] = f"{late_df.loc[0.5]:.0%}", f"{late_df.loc[2.0]:.0%}"
 wanted = {
-    "README.md": ["weekly", "saved", "runs_before", "runs_after", "late", "headroom", "extra"],
-    "docs/PROJECT_STORY.md": ["weekly", "annual", "per_pallet", "saved", "saved_week", "runs_before", "runs_after", "ss", "ss_demand", "late", "fill", "headroom", "near", "near6", "extra", "demand", "transport", "dcfixed", "low", "high"],
-    "docs/HOW_IT_WORKS.md": ["weekly", "annual", "per_pallet", "co2", "saved", "runs_before", "runs_after", "ss", "ss_demand", "late", "headroom", "near", "near6", "extra", "textbook", "solver", "low", "high"],
-    "docs/INTERVIEW_QA.md": ["saved", "ss_demand", "late", "fill", "headroom", "near", "near6", "extra", "demand", "transport", "dcfixed"],
+    "README.md": ["weekly", "saved", "runs_before", "runs_after", "late", "late_half", "late_double", "headroom", "extra"],
+    "docs/PROJECT_STORY.md": ["weekly", "annual", "per_pallet", "saved", "saved_week", "runs_before", "runs_after", "ss", "ss_demand", "late", "late_half", "late_double", "fill", "headroom", "near", "near6", "extra", "demand", "transport", "dcfixed", "low", "high"],
+    "docs/HOW_IT_WORKS.md": ["weekly", "annual", "per_pallet", "co2", "saved", "runs_before", "runs_after", "ss", "ss_demand", "late", "late_half", "late_double", "headroom", "near", "near6", "extra", "textbook", "solver", "low", "high"],
+    "docs/INTERVIEW_QA.md": ["saved", "ss_demand", "late", "late_half", "late_double", "fill", "headroom", "near", "near6", "extra", "demand", "transport", "dcfixed"],
     "docs/AUDIT.md": ["late", "fill"],
-    "docs/ONE_PAGE_SUMMARY.md": ["weekly", "annual", "per_pallet", "saved", "saved_week", "runs_before", "runs_after", "ss", "late", "near", "near6", "extra", "headroom"],
-    "docs/DATA_AND_ASSUMPTIONS.md": ["demand1", "transport", "dcfixed"],
+    "docs/ONE_PAGE_SUMMARY.md": ["weekly", "annual", "per_pallet", "saved", "saved_week", "runs_before", "runs_after", "ss", "late", "late_half", "late_double", "near", "near6", "extra", "headroom"],
+    "docs/DATA_AND_ASSUMPTIONS.md": ["demand1", "transport", "dcfixed", "late", "late_half", "late_double"],
     "docs/IDEA_LOG.md": ["saved", "late", "fill", "extra", "demand", "transport", "dcfixed"],
 }
 for doc, keys in wanted.items():

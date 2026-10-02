@@ -44,11 +44,11 @@ Every box is traced to the code. The [interactive version](https://akashhalgekar
 
 The case structure was inspired by a Supply Science video; see [docs/ATTRIBUTION.md](docs/ATTRIBUTION.md).
 
-## What it finds (base case)
+## What it finds (in the simulated company)
 
 - The lowest-cost network closes Chicago: **$650,458 a week, 3.7% below a reference case** of all six DCs open. Keeping all six costs only 0.4% more and raises next-day coverage from 68% to 80%, so the recommendation is to keep all six: the real decision is service, not cost.
 - Production runs fall from 168 to 39 over 12 weeks, inside plant capacity and shelf-life limits.
-- 57% of safety stock exists because deliveries arrive late, not because demand swings.
+- 57% of safety stock exists because deliveries arrive late, not because demand swings. That share depends on the delivery-time spread assumed for the simulated DCs: 32% at half that spread, 77% at double. It shows the method, not a discovery about real companies.
 - Demand can grow about 40% before the network cannot serve it. Losing Columbus or Dallas leaves demand unmet, and a next-day (600 mile) promise cannot be met from these sites.
 
 [docs/AUDIT.md](docs/AUDIT.md) lists the mistakes a supply chain manager would spot in a project like this and how each was fixed.

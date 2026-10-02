@@ -26,7 +26,10 @@ The first version charged a flat $3.50 a pallet-week to hold stock, about 200% o
 Production is 53% of cost and the model treats plant cost as fixed, so network and inventory levers cannot move the total far. Reporting a small number honestly is better than tuning inputs until it looks large.
 
 **Q: How sensitive is the answer to your assumptions?**
-The size of the cost and the main findings hold: production dominates, and late deliveries drive 57% of safety stock. The exact set of DCs does not. A freight rate of $0.115 or a 900-mile radius keeps all six, and a 1,300-mile radius closes Atlanta and Seattle. The cost gaps between the options are small, which is why I recommend on service rather than claim one set is the right answer.
+The size of the cost and the main findings hold: production dominates, and late deliveries drive 57% of safety stock in this simulated company. The exact set of DCs does not. A freight rate of $0.115 or a 900-mile radius keeps all six, and a 1,300-mile radius closes Atlanta and Seattle. The cost gaps between the options are small, which is why I recommend on service rather than claim one set is the right answer.
+
+**Q: Is the 57% a real finding?**
+Not about the real world. It follows from the delivery-time spread I assumed for each simulated DC: at half that spread it is 32%, at double it is 77%. What the project shows is the method: that delivery reliability can drive safety stock as much as demand swings, and how to measure it. With real receipts, the same code would give a real number.
 
 ## About the supply chain content
 

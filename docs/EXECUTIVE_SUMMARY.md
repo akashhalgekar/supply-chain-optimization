@@ -32,7 +32,7 @@ Production is 53% of weekly cost, so no network or inventory lever can move the 
 
 ## Safety stock: two things worth knowing
 
-- **Late deliveries are the bigger driver of safety stock.** Demand risk alone gives 464 pallets. Adding the measured variation in delivery lead time gives 1,088: 57% of the stock exists because deliveries arrive late.
+- **Late deliveries are the bigger driver of safety stock.** Demand risk alone gives 464 pallets. Adding the measured variation in delivery lead time gives 1,088: 57% of the stock exists because deliveries arrive late. That share is a property of the delivery-time spread in the simulated data, not a discovery about real companies: at half that spread it is 32%, at double it is 77% (`output/16_late_delivery_sensitivity.csv`).
 - **A 95% service level is not a 95% fill rate.** Cycle service level counts cycles without a stockout. Counted as units served from stock, the same buffer gives about **99.3%** (assuming one week of demand is ordered per cycle).
 - **Stock is not where the money is.** Moving the service level by two points changes total cost by under 0.1%. Holding the safety stock costs 0.1% of weekly cost.
 

@@ -82,6 +82,8 @@ The planning assumptions were moved across plausible ranges (`output/15_assumpti
 | Shelf-life cover share | 40% to 60% | under 0.1% | no |
 | Capacity margin | 85% to 95% | none | no |
 
+The late-delivery share of safety stock depends entirely on the delivery-time spread in the simulated receipts (`output/16_late_delivery_sensitivity.csv`): 0% with perfectly reliable deliveries, 32% at half the assumed spread, 57% as simulated, 77% at double.
+
 **What this means.** The size of the cost (about $650,000 a week), the finding that production is 53% of it and that late deliveries drive 57% of safety stock hold across all of these.
 The exact set of open DCs does not: it moves with the freight rate, delivery radius and road factor, and the cost gap between the options is small (0.4% between the two best).
 That is why the project recommends the service-based choice instead of claiming the cost-optimal set is the single right answer.

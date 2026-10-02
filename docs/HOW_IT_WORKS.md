@@ -81,7 +81,7 @@ The dashboard re-runs the whole chain when you move a dial.
 Things worth a second look before trusting them:
 - **Chicago is a big market and the cheapest network closes its DC.** It is then served from Atlanta (677 miles) and Dallas (925 miles). Keeping all six DCs costs $2,415 a week more
   (0.4%) but raises next-day coverage from 68% to 80%, so the summary recommends keeping all six unless that coverage is worth less than 0.4% of cost.
-- **Late deliveries drive most of the safety stock.** 57% of it exists because of them.
+- **Late deliveries drive most of the safety stock in this simulated company.** 57% of it exists because of them. That share depends on the delivery-time spread assumed for the simulated DCs: 32% at half that spread, 77% at double.
 - **The exact DC set depends on assumptions.** A 900-mile radius keeps all six DCs, a 1,300-mile radius closes Atlanta and Seattle, and a higher freight rate keeps all six. The cost gap between the options is small, which is why service, not cost, decides it (`docs/DATA_AND_ASSUMPTIONS.md`).
 - **There is little slack.** Demand can grow about 40% before the network cannot serve it. Losing Columbus or Dallas leaves demand unmet, and ENER25 can only be made in Columbus.
 - **A next-day promise (600 miles) cannot be met** from these six sites.

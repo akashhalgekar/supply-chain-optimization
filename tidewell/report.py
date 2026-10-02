@@ -12,7 +12,7 @@ def _pct(x):
     return f"{x:.1%}" if abs(x) >= 0.001 else ("under 0.1%" if abs(x) > 0 else "0%")
 
 
-def executive_summary(co, base, waterfall, sets, stress, sens, cts, headroom, tables):
+def executive_summary(co, base, waterfall, sets, stress, sens, cts, headroom, tables, late):
     k, t, net, lots, stock = base.kpi, base.terms, base.net, base.lots, base.stock
     city = co.city
     opened = [city(d) for d in net.open_dcs]
@@ -67,6 +67,8 @@ def executive_summary(co, base, waterfall, sets, stress, sens, cts, headroom, ta
                     f"{k['next_day_share']:.0%} of volume is delivered within 600 miles (next day by truck); the rest within {t.max_delivery_miles:,.0f} miles (two-day ground).")
         svc_row = ""
     decision_1 = (f"Decide whether {round(svc.next_day_share * 100) - round(cheapest.next_day_share * 100)} more points of next-day coverage are worth {svc_extra / cheapest.total_usd_week:.1%} of cost: keep {svc.open_dcs} (recommended) or run only {', '.join(opened)}." if svc_better else f"Approve running {', '.join(opened)} and closing {', '.join(closed)}.")
+    late_half = late.loc[late.delivery_spread_multiplier == 0.5, "share_from_late_deliveries"].iloc[0]
+    late_double = late.loc[late.delivery_spread_multiplier == 2.0, "share_from_late_deliveries"].iloc[0]
     dcf = co.dcs.set_index("code")
     fixed_closed = sum(dcf.loc[d, "fixed_year"] for d in co.codes("dcs") if d not in net.open_dcs) * t.dc_fixed_scale / t.weeks_per_year
     sets_rows = "\n".join(f"| {r.open_dcs} | ${r.total_usd_week:,.0f} | {r.total_usd_week - best_total.total_usd_week:+,.0f} | {r.next_day_share:.0%} |" for r in sets.head(5).itertuples())
@@ -108,7 +110,7 @@ Production is {prod_share:.0%} of weekly cost, so no network or inventory lever 
 
 ## Safety stock: two things worth knowing
 
-- **Late deliveries are {'the bigger' if late_share > 0.5 else 'a large'} driver of safety stock.** Demand risk alone gives {stock.safety_demand_only:,} pallets. Adding the measured variation in delivery lead time gives {stock.safety_stock:,}: {late_share:.0%} of the stock exists because deliveries arrive late.
+- **Late deliveries are {'the bigger' if late_share > 0.5 else 'a large'} driver of safety stock.** Demand risk alone gives {stock.safety_demand_only:,} pallets. Adding the measured variation in delivery lead time gives {stock.safety_stock:,}: {late_share:.0%} of the stock exists because deliveries arrive late. That share is a property of the delivery-time spread in the simulated data, not a discovery about real companies: at half that spread it is {late_half:.0%}, at double it is {late_double:.0%} (`output/16_late_delivery_sensitivity.csv`).
 - **A {k['service_level']:.0%} service level is not a {k['service_level']:.0%} fill rate.** Cycle service level counts cycles without a stockout. Counted as units served from stock, the same buffer gives about **{stock.fill_rate:.1%}** (assuming one week of demand is ordered per cycle).
 - **Stock is not where the money is.** Moving the service level by two points changes total cost by {_pct(sl.swing_share_of_cost)}. Holding the safety stock costs {k['safety_stock_cost'] / k['weekly_cost']:.1%} of weekly cost.
 

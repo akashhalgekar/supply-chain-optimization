@@ -40,7 +40,7 @@ The question: **which DCs should Tidewell run, when should each plant produce, a
 | Cost of the lowest-cost network (Atlanta, Newark, Dallas, Los Angeles, Seattle) | $650,458 a week, $33.8M a year, $311 a pallet |
 | Saving against a reference case (all DCs open, weekly production) | 3.7%: $25,272 a week, $1.31M a year |
 | Production runs over 12 weeks | 168 become 39 |
-| Safety stock | 1,088 pallets; 464 if late deliveries were ignored, so 57% of the stock exists because trucks arrive late |
+| Safety stock | 1,088 pallets; 464 if late deliveries were ignored, so 57% of the stock exists because trucks arrive late. That share depends on the delivery-time spread I assumed: 32% at half, 77% at double |
 | Service level versus fill rate | 95% cycle service level is about 99.3% of units served from stock |
 | The real decision | Closing Chicago is cheapest, but keeping all six DCs costs only 0.4% more and raises next-day coverage from 68% to 80%. The project recommends keeping all six |
 | Resilience | Demand can grow 40% before the network breaks. Losing Columbus (the only plant for ENER25) or Dallas leaves demand unmet |
@@ -97,6 +97,7 @@ That is the story to tell: **the AI is fast, the supply chain knowledge is what 
 - One service level for every item.
 - Several inputs are assumptions: the 90% capacity margin, the 1,100-mile radius, shelf lives of water, tea and juice, and DC fixed costs.
 - The exact DC set depends on the freight rate, delivery radius and road factor.
+- The headline findings are properties of the simulated company, not discoveries about real ones. For example, the late-delivery share of safety stock follows from the delivery-time spread I assumed for each DC (32% at half that spread, 77% at double). The project shows the method and how to test it, and needs real data to say anything about a real company.
 
 ## Three ways to present it
 
