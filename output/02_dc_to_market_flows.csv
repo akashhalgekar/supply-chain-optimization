@@ -1,0 +1,85 @@
+dc,market,sku,pallets
+Atlanta,Chicago,ENER25,15.1
+Atlanta,Philadelphia,JUICE10,16.8
+Atlanta,Atlanta,STILL15,33.0
+Atlanta,Atlanta,SPARK10,24.7
+Atlanta,Atlanta,COLA33,44.2
+Atlanta,Atlanta,TEA50,23.5
+Atlanta,Atlanta,ENER25,11.5
+Atlanta,Miami,STILL15,33.7
+Atlanta,Miami,SPARK10,22.3
+Atlanta,Miami,COLA33,42.1
+Atlanta,Miami,TEA50,23.4
+Atlanta,Miami,JUICE10,15.6
+Atlanta,Miami,ENER25,12.9
+Atlanta,Minneapolis,ENER25,8.5
+Atlanta,Detroit,JUICE10,13.2
+Newark,New York,STILL15,61.0
+Newark,New York,SPARK10,40.7
+Newark,New York,COLA33,70.1
+Newark,New York,TEA50,35.2
+Newark,New York,JUICE10,33.3
+Newark,New York,ENER25,18.4
+Newark,Philadelphia,STILL15,28.6
+Newark,Philadelphia,SPARK10,20.8
+Newark,Philadelphia,COLA33,31.1
+Newark,Philadelphia,TEA50,18.5
+Newark,Philadelphia,ENER25,10.1
+Newark,Boston,STILL15,27.3
+Newark,Boston,SPARK10,16.2
+Newark,Boston,COLA33,34.9
+Newark,Boston,TEA50,17.7
+Newark,Boston,JUICE10,14.6
+Newark,Boston,ENER25,9.5
+Newark,Detroit,STILL15,19.3
+Newark,Detroit,SPARK10,14.9
+Newark,Detroit,COLA33,25.9
+Newark,Detroit,TEA50,12.3
+Newark,Detroit,ENER25,8.3
+Dallas,Chicago,STILL15,38.3
+Dallas,Chicago,SPARK10,30.2
+Dallas,Chicago,COLA33,48.5
+Dallas,Chicago,TEA50,28.7
+Dallas,Chicago,JUICE10,22.9
+Dallas,Houston,STILL15,34.2
+Dallas,Houston,SPARK10,26.6
+Dallas,Houston,COLA33,38.4
+Dallas,Houston,TEA50,27.0
+Dallas,Houston,JUICE10,20.0
+Dallas,Houston,ENER25,14.8
+Dallas,Phoenix,COLA33,38.3
+Dallas,Phoenix,TEA50,19.7
+Dallas,Phoenix,JUICE10,17.6
+Dallas,Phoenix,ENER25,9.2
+Dallas,Atlanta,JUICE10,15.6
+Dallas,Denver,STILL15,24.9
+Dallas,Denver,SPARK10,17.5
+Dallas,Denver,COLA33,30.1
+Dallas,Denver,TEA50,16.9
+Dallas,Denver,JUICE10,13.0
+Dallas,Denver,ENER25,7.6
+Dallas,Minneapolis,STILL15,25.4
+Dallas,Minneapolis,SPARK10,16.2
+Dallas,Minneapolis,COLA33,26.0
+Dallas,Minneapolis,TEA50,14.7
+Dallas,Minneapolis,JUICE10,12.8
+Los Angeles,Los Angeles,STILL15,60.3
+Los Angeles,Los Angeles,SPARK10,39.5
+Los Angeles,Los Angeles,COLA33,57.7
+Los Angeles,Los Angeles,TEA50,38.2
+Los Angeles,Los Angeles,JUICE10,26.8
+Los Angeles,Los Angeles,ENER25,18.6
+Los Angeles,Phoenix,STILL15,31.2
+Los Angeles,Phoenix,SPARK10,21.3
+Los Angeles,San Francisco,STILL15,34.2
+Los Angeles,San Francisco,SPARK10,18.7
+Los Angeles,San Francisco,COLA33,34.0
+Los Angeles,San Francisco,TEA50,17.8
+Los Angeles,San Francisco,JUICE10,13.6
+Los Angeles,San Francisco,ENER25,10.5
+Seattle,Seattle,STILL15,28.0
+Seattle,Seattle,SPARK10,16.7
+Seattle,Seattle,COLA33,36.2
+Seattle,Seattle,TEA50,18.1
+Seattle,Seattle,JUICE10,14.7
+Seattle,Seattle,ENER25,8.3

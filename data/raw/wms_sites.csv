@@ -1,0 +1,7 @@
+site_code,city,site_type,throughput_pallets_per_day,handling_cost_usd_per_pallet,annual_fixed_cost_usd
+DC-ATL,Atlanta,DC,280,8.6,900000
+DC-CHI,Chicago,DC,300,9.2,980000
+DC-EWR,Newark,DC,320,10.4,1200000
+DC-DFW,Dallas,DC,240,7.8,800000
+DC-LAX,Los Angeles,DC,300,10.0,1150000
+DC-SEA,Seattle,DC,200,9.4,850000

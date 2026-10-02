@@ -1,0 +1,5 @@
+parameter,value
+setup_cost,2400.0
+holding_rate_year,0.22
+rate_per_pallet_mile,0.1
+co2_per_pallet_mile,0.1

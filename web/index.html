@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tidewell Supply Chain Optimiser</title>
+<style>
+  :root { --bg:#f5f7fa; --card:#fff; --ink:#14213d; --muted:#6b7a90; --line:#e1e6ee; --navy:#0b2a4a; --green:#1f8f7a; --red:#c0392b; --amber:#d4900a; --accent:#2b6cb0; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0e1621; --card:#16212f; --ink:#e8edf4; --muted:#93a1b5; --line:#263446; --accent:#5aa0e6; } }
+  * { box-sizing:border-box } body { margin:0; font:15px/1.45 system-ui,sans-serif; background:var(--bg); color:var(--ink) }
+  header { display:flex; align-items:center; gap:16px; padding:14px 24px; background:var(--navy); color:#fff; flex-wrap:wrap }
+  header h1 { font-size:18px; margin:0 } header span { color:#b9c7d8; font-size:13px }
+  nav { margin-left:auto; display:flex; gap:8px } nav button { background:transparent; border:1px solid #4a6485; color:#fff; padding:6px 14px; border-radius:6px; cursor:pointer }
+  nav button.on { background:#fff; color:var(--navy) }
+  main { display:grid; grid-template-columns:270px 1fr; gap:20px; padding:20px 24px; max-width:1400px; margin:auto }
+  aside, .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px }
+  aside h2 { font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin:0 0 12px }
+  label { display:flex; justify-content:space-between; font-size:13px; margin-top:14px } label b { font-variant-numeric:tabular-nums }
+  input[type=range] { width:100%; accent-color:var(--navy) }
+  button.go { width:100%; margin-top:20px; padding:10px; background:var(--navy); color:#fff; border:0; border-radius:6px; font-weight:600; cursor:pointer }
+  button.go:disabled { opacity:.5 } .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:16px }
+  .kpi .v { font-size:24px; font-weight:700; font-variant-numeric:tabular-nums } .kpi .l { color:var(--muted); font-size:12px }
+  .grid { display:grid; grid-template-columns:1.5fr 1fr; gap:16px } .card h3 { margin:0 0 10px; font-size:14px }
+  .bar { display:grid; grid-template-columns:130px 1fr 70px; gap:8px; align-items:center; font-size:13px; margin:6px 0 }
+  .bar i { display:block; height:10px; background:var(--accent); border-radius:5px } .bar span:last-child { text-align:right; font-variant-numeric:tabular-nums }
+  img { max-width:100%; border-radius:6px } p.note { color:var(--muted); font-size:13px; margin:6px 0 }
+  table { width:100%; border-collapse:collapse; font-size:13px } td,th { text-align:left; padding:5px 6px; border-bottom:1px solid var(--line) } td.n,th.n { text-align:right }
+  .warn { background:#fdecea; color:#8a1f12; padding:14px; border-radius:8px } [hidden]{display:none!important}
+  @media (max-width:860px) { main { grid-template-columns:1fr } .grid { grid-template-columns:1fr } }
+</style>
+</head>
+<body>
+<header><h1>Tidewell Supply Chain Optimiser</h1><span id="sub">network design, production planning and safety stock in one chain</span>
+  <nav><button id="t1" class="on">Optimise</button><button id="t2">Data pipeline</button></nav></header>
+<main id="opt">
+  <aside><h2>Dials</h2><div id="dials"></div><button class="go" id="go">Re-optimise the chain</button>
+    <p class="note">Each run solves the whole chain. It takes a few seconds.</p></aside>
+  <section id="out"><div class="card">Loading…</div></section>
+</main>
+<main id="pipe" hidden style="grid-template-columns:1fr">
+  <div class="card"><h3>How the data reaches the model</h3><img id="flow" alt="flowchart"></div>
+  <div class="card"><h3>What the cleaning removed</h3><table id="log"></table></div>
+</main>
+<script>
+const DIALS = {
+  demand_scale:{l:"Demand",min:.5,max:2,step:.05,f:v=>"x"+(+v).toFixed(2)}, service_level:{l:"Service level",min:.8,max:.99,step:.01,f:v=>Math.round(v*100)+"%"},
+  rate_per_pallet_mile:{l:"Transport rate per pallet-mile",min:.02,max:.2,step:.005,f:v=>"$"+(+v).toFixed(3)}, dc_fixed_scale:{l:"DC fixed cost",min:.5,max:2,step:.05,f:v=>"x"+(+v).toFixed(2)},
+  setup_cost:{l:"Production setup cost",min:200,max:10000,step:100,f:v=>"$"+(+v).toLocaleString()}, lead_time_scale:{l:"Delivery lead times",min:.5,max:3,step:.1,f:v=>"x"+(+v).toFixed(1)}
+};
+const state = {}; const $ = id => document.getElementById(id); const usd = n => "$" + Math.round(n).toLocaleString();
+fetch("/api/defaults").then(r=>r.json()).then(d => { Object.assign(state,d); build(); run(); });
+function build() {
+  $("dials").innerHTML = Object.entries(DIALS).map(([k,c]) =>
+    `<label>${c.l}<b id="v_${k}">${c.f(state[k])}</b></label><input type="range" id="r_${k}" min="${c.min}" max="${c.max}" step="${c.step}" value="${state[k]}">`).join("");
+  Object.keys(DIALS).forEach(k => $("r_"+k).oninput = e => { state[k] = +e.target.value; $("v_"+k).textContent = DIALS[k].f(state[k]); });
+}
+async function run() {
+  $("go").disabled = true; $("go").textContent = "Optimising…";
+  const d = await (await fetch("/api/run", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(state)})).json();
+  $("go").disabled = false; $("go").textContent = "Re-optimise the chain";
+  if (!d.feasible) { $("out").innerHTML = `<div class="warn"><b>No feasible plan.</b> ${d.message}</div>`; return; }
+  const k = d.kpi, mx = Math.max(...d.cost_breakdown.map(b=>b.value));
+  $("out").innerHTML = `
+  <div class="kpis">
+    <div class="card kpi"><div class="v">${usd(k.weekly_cost)}</div><div class="l">cost per week</div></div>
+    <div class="card kpi"><div class="v">${usd(k.cost_per_pallet)}</div><div class="l">cost per pallet</div></div>
+    <div class="card kpi"><div class="v">${Math.round(k.co2_tonnes_year).toLocaleString()} t</div><div class="l">CO2 per year</div></div>
+    <div class="card kpi"><div class="v">${Math.round(k.service_level*100)}%</div><div class="l">cycle service level</div></div>
+    <div class="card kpi"><div class="v">${(k.fill_rate*100).toFixed(1)}%</div><div class="l">fill rate</div></div>
+    <div class="card kpi"><div class="v">${Math.round(k.next_day_share*100)}%</div><div class="l">volume within 600 miles</div></div></div>
+  <div class="grid"><div class="card"><h3>Network: ${d.open_dcs.length} of ${d.open_dcs.length+d.closed_dcs.length} DCs open (${d.open_dcs.join(", ")})</h3><img src="${d.map}" alt="network map"></div>
+  <div><div class="card"><h3>Weekly cost breakdown</h3>${d.cost_breakdown.map(b=>`<div class="bar"><span>${b.label}</span><span><i style="width:${100*b.value/mx}%"></i></span><span>${usd(b.value)}</span></div>`).join("")}</div>
+  <div class="card" style="margin-top:16px"><h3>Plants, peak-week load</h3><table>${d.plants.map(p=>`<tr><td>${p.plant}</td><td class="n">${Math.round(p.peak_week_load*100)}%</td></tr>`).join("")}</table>
+    <p class="note">${d.production.runs} production runs in 12 weeks instead of ${d.production.runs_if_weekly}; batching saves ${usd(d.production.saved_vs_weekly)} over the 12 weeks.</p></div>
+  <div class="card" style="margin-top:16px"><h3>Safety stock: ${d.stock.safety_stock.toLocaleString()} pallets</h3><table>${d.stock.by_dc.map(s=>`<tr><td>${s.dc}</td><td class="n">${s.pallets.toLocaleString()}</td></tr>`).join("")}</table>
+    <p class="note">Counting demand swings alone would give ${d.stock.if_demand_only.toLocaleString()} pallets. Late deliveries add the rest.</p></div></div></div>`;
+}
+$("go").onclick = run;
+let loaded = false;
+function tab(n) { $("opt").hidden = n==2; $("pipe").hidden = n==1; $("t1").className = n==1?"on":""; $("t2").className = n==2?"on":"";
+  if (n==2 && !loaded) { loaded = true; fetch("/api/lineage").then(r=>r.json()).then(d => { $("flow").src = d.flowchart;
+    $("log").innerHTML = "<tr><th>Source</th><th>Step</th><th class='n'>Rows</th><th>Note</th></tr>" + d.quality_log.filter(q=>q.rows_affected>0).map(q=>`<tr><td>${q.source}</td><td>${q.step}</td><td class="n">${q.rows_affected}</td><td>${q.note}</td></tr>`).join(""); }); } }
+$("t1").onclick = () => tab(1); $("t2").onclick = () => tab(2);
+</script>
+</body></html>

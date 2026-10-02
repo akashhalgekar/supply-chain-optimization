@@ -1,0 +1,13 @@
+source,step,rows_in,rows_out,rows_affected,note
+WMS sites,convert pallets per day to per week,6,6,0,x 5 working days
+ERP orders,remove duplicate order lines,9128,8996,132,same order_line_id twice
+ERP orders,keep shipped lines only,8996,8820,176,cancelled orders were never served
+ERP orders,quarantine incomplete lines,8820,8814,6,"missing item code, or missing or zero quantity"
+ERP orders,read mixed date formats,8814,8814,0,YYYY-MM-DD and DD/MM/YYYY both converted
+ERP orders,match city to customer,8814,8814,0,"Chicago, CHICAGO and ' chicago' all become MK-CHI"
+ERP orders,match item to item master,8814,8814,0,unknown items dropped
+ERP orders,control total: units extracted vs kept,9128,8814,314,"150,802,098 units extracted, 145,506,856 kept, 5,295,242 removed as duplicates, cancelled or broken"
+ERP orders,roll up to weekly demand,8814,4368,4446,"order lines grouped by market, item, week; 0 empty weeks set to zero"
+ERP orders,weekly mean and spread,4368,84,4284,the two numbers that drive network flows and safety stock
+TMS lanes,convert km to miles,102,102,0,9 lanes were quoted in kilometres
+WMS receipts,remove impossible lead times,240,240,0,receipt dated before shipment

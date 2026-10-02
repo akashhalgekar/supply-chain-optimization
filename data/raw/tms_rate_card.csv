@@ -1,0 +1,3 @@
+parameter,value,unit,note
+cost_per_pallet_mile,0.1,USD,carrier contract line-haul rate
+co2_per_pallet_mile,0.1,kg,carrier emission factor

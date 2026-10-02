@@ -1,0 +1,11 @@
+scenario,status,open_dcs,weekly_cost_usd,change_vs_base,cost_per_pallet_usd,safety_stock_pallets,busiest_plant_peak_load
+Base case,feasible,"Atlanta, Newark, Dallas, Los Angeles, Seattle",650458.4939,0.0,311.4179,1088.0,0.7614
+Demand +20%,feasible,"Atlanta, Newark, Dallas, Los Angeles, Seattle",761252.104,0.1703,303.7185,1303.0,0.9
+Demand +50%,cannot meet demand,,,,,,
+Transport rate x2,feasible,"Atlanta, Chicago, Newark, Dallas, Los Angeles, Seattle",816757.8955,0.2557,391.0365,1118.0,0.8902
+Deliveries 50% slower (lead times x1.5),feasible,"Atlanta, Newark, Dallas, Los Angeles, Seattle",650816.3397,0.0006,311.5892,1577.0,0.7614
+Next-day delivery promise (600 miles),cannot meet demand,,,,,,
+DC fixed cost +50%,feasible,"Atlanta, Dallas, Los Angeles, Seattle",697242.4244,0.0719,333.8165,1120.0,0.7614
+Columbus plant is down,cannot meet demand,,,,,,
+Dallas plant is down,cannot meet demand,,,,,,
+Sacramento plant is down,feasible,"Atlanta, Chicago, Newark, Dallas, Los Angeles, Seattle",678852.9155,0.0437,325.0122,1131.0,0.9

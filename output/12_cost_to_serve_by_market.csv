@@ -1,0 +1,15 @@
+market_code,city,pallets_per_week,inbound,handling,dc_fixed,outbound,logistics_usd_per_pallet,served_from
+MK-SEA,Seattle,122.0,118.69,9.4,133.98,0.0,262.07,Seattle
+MK-SFO,San Francisco,128.8,83.3,10.0,52.36,40.0,185.65,Los Angeles
+MK-MIA,Miami,150.0,53.5,8.6,50.83,69.8,182.73,Atlanta
+MK-DTW,Detroit,93.9,57.79,10.15,42.02,56.32,166.28,"Atlanta, Newark"
+MK-PHX,Phoenix,137.3,22.94,8.64,34.98,78.49,145.05,"Dallas, Los Angeles"
+MK-LAX,Los Angeles,241.1,80.0,10.0,52.36,0.0,142.36,Los Angeles
+MK-BOS,Boston,120.2,66.21,10.4,40.58,22.5,139.69,Newark
+MK-MSP,Minneapolis,103.6,4.11,7.87,26.41,99.72,138.1,"Atlanta, Dallas"
+MK-CHI,Chicago,183.7,4.12,7.87,26.41,90.46,128.86,"Atlanta, Dallas"
+MK-PHL,Philadelphia,125.9,57.58,10.16,41.95,17.75,127.44,"Atlanta, Newark"
+MK-NYC,New York,258.7,66.96,10.4,40.58,1.0,118.94,Newark
+MK-DEN,Denver,110.0,7.25,7.8,24.22,76.2,115.48,Dallas
+MK-ATL,Atlanta,152.5,44.98,8.52,48.11,8.47,110.07,"Atlanta, Dallas"
+MK-HOU,Houston,161.0,9.65,7.8,24.22,25.9,67.58,Dallas

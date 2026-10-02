@@ -1,0 +1,7 @@
+code,name,category,units_pallet,kg_unit,cost_pallet,shelf_life_weeks
+STILL15,Still water 1.5L,Water,672,1.55,88,52
+SPARK10,Sparkling water 1L,Water,840,1.1,104,52
+COLA33,Cola 33cl can,Soda,2200,0.36,175,26
+TEA50,Iced tea 50cl,Soda,1100,0.55,210,20
+JUICE10,Orange juice 1L,Juice,700,1.08,255,12
+ENER25,Energy drink 25cl,Energy,2800,0.28,340,30

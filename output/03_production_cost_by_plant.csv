@@ -1,0 +1,4 @@
+plant,items,runs,setup_cost,holding_cost,total
+Columbus,5,15,36000.0,14266.0,50266.0
+Dallas,5,15,36000.0,13456.0,49456.0
+Sacramento,4,9,21600.0,6877.0,28477.0

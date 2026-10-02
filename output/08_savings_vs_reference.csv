@@ -1,0 +1,5 @@
+step,usd_per_week,share_of_reference
+"Reference case: every DC open, every item made weekly",675730.74,
+Close the DCs the network does not need,-2355.5347,0.0035
+Batch production runs,-22916.7114,0.0339
+Recommended chain,650458.4939,0.0374

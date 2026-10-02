@@ -1,0 +1,17 @@
+city_a,city_b,driving_miles,note
+New York,Chicago,790,spot-checked online: about 790 to 850 depending on neighbourhood and route
+Los Angeles,Seattle,1135,"spot-checked online: 1,135 via I-5"
+Dallas,Houston,239,"approximate, from memory of common mapping services; not independently checked"
+Atlanta,Miami,660,"approximate, from memory of common mapping services; not independently checked"
+Chicago,Minneapolis,410,"approximate, from memory of common mapping services; not independently checked"
+Dallas,Los Angeles,1435,"spot-checked online: 1,230 to 1,440 depending on route; kept the high end"
+Atlanta,Chicago,715,spot-checked online: 679 to 720 depending on route
+Columbus,Chicago,355,"approximate, from memory of common mapping services; not independently checked"
+Boston,New York,215,"approximate, from memory of common mapping services; not independently checked"
+Atlanta,Dallas,780,"approximate, from memory of common mapping services; not independently checked"
+Denver,Dallas,795,"approximate, from memory of common mapping services; not independently checked"
+Sacramento,Los Angeles,385,"approximate, from memory of common mapping services; not independently checked"
+Seattle,Sacramento,760,"approximate, from memory of common mapping services; not independently checked"
+Columbus,Atlanta,535,"approximate, from memory of common mapping services; not independently checked"
+Philadelphia,Boston,310,"approximate, from memory of common mapping services; not independently checked"
+Phoenix,Los Angeles,373,"approximate, from memory of common mapping services; not independently checked"

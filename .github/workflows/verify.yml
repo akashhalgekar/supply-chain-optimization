@@ -1,0 +1,23 @@
+name: verify
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Run the pipeline (data, ETL, models, analytics, documents)
+        run: python -m tidewell.run
+      - name: Robustness test on other synthetic companies
+        run: python -m tidewell.robustness 10
+      - name: Verify (checks on Tidewell, inputs, teeth and documents)
+        run: python verify.py
