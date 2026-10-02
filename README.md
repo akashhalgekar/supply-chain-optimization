@@ -13,6 +13,15 @@ The dashboard re-runs the whole chain when you move a dial:
 
 ![dashboard](docs/dashboard.jpg)
 
+## Architecture
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/architecture/supply-chain-optimization-architecture-dark.png">
+  <img alt="Architecture: messy ERP, WMS and TMS data to an ETL, a clean data store, network design, production plan and safety stock, a scorecard and decision analytics, with verification" src="docs/architecture/supply-chain-optimization-architecture-light.png">
+</picture>
+
+Every box is traced to the code. The [interactive version](https://akashhalgekar.github.io/supply-chain-architecture.html) has a link from each box to the exact lines of code. Built with [Archify](https://github.com/tt-a1i/archify); the diagram's source is `docs/architecture/architecture.spec.json`.
+
 ## From data to decision
 
 1. **Data in.** 9,128 raw ERP order lines, 240 WMS goods receipts and 102 TMS lanes (simulated, deliberately messy).

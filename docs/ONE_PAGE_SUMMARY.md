@@ -26,6 +26,6 @@
 
 ## How AI was used
 
-AI wrote the code. The supply chain judgement was applied around it: framing the question, requiring realism, auditing the first draft (13 problems found, such as a holding cost equal to about 200% of a water pallet's value a year), and refusing to accept results that could not be explained. Credit for the case idea goes to the Supply Science video that inspired it (`docs/ATTRIBUTION.md`).
+AI wrote the code. The supply chain judgement was applied around it: framing the question, requiring realism, auditing the first draft (16 problems found, such as a holding cost equal to about 200% of a water pallet's value a year), and refusing to accept results that could not be explained. Credit for the case idea goes to the Supply Science video that inspired it (`docs/ATTRIBUTION.md`).
 
 **Read next:** `docs/PROJECT_STORY.md`, `docs/EXECUTIVE_SUMMARY.md`, `docs/AUDIT.md`.

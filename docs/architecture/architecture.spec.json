@@ -1,0 +1,472 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Supply Chain Optimization: from messy company data to a decision",
+    "output": "supply-chain-optimization-architecture.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/akashhalgekar/supply-chain-optimization.git",
+      "provider": "github",
+      "revision": "b1df6837327b003577250879655431d1d5704243"
+    }
+  },
+  "components": [
+    {
+      "id": "synthetic",
+      "type": "external",
+      "label": "Other companies",
+      "sublabel": "10 synthetic test cases",
+      "pos": [
+        40,
+        20
+      ],
+      "size": [
+        140,
+        64
+      ],
+      "sources": [
+        {
+          "path": "tidewell/synthetic.py",
+          "line": 83,
+          "end_line": 92,
+          "label": "feasible_company"
+        },
+        {
+          "path": "tidewell/robustness.py",
+          "line": 17,
+          "end_line": 30,
+          "label": "run_company"
+        }
+      ]
+    },
+    {
+      "id": "systems",
+      "type": "external",
+      "label": "Company systems",
+      "sublabel": "ERP, WMS, TMS files",
+      "pos": [
+        40,
+        190
+      ],
+      "size": [
+        140,
+        64
+      ],
+      "sources": [
+        {
+          "path": "tidewell/sources.py",
+          "line": 110,
+          "end_line": 140,
+          "label": "generate"
+        }
+      ]
+    },
+    {
+      "id": "etl",
+      "type": "backend",
+      "label": "ETL",
+      "sublabel": "clean and reconcile",
+      "tag": "stops if >10% dropped",
+      "pos": [
+        250,
+        190
+      ],
+      "size": [
+        140,
+        64
+      ],
+      "sources": [
+        {
+          "path": "tidewell/etl.py",
+          "line": 77,
+          "end_line": 131,
+          "label": "transform"
+        },
+        {
+          "path": "tidewell/etl.py",
+          "line": 66,
+          "label": "10% stop"
+        },
+        {
+          "path": "tidewell/etl.py",
+          "line": 97,
+          "label": "control total"
+        }
+      ]
+    },
+    {
+      "id": "store",
+      "type": "database",
+      "label": "Clean data store",
+      "sublabel": "13 tables",
+      "pos": [
+        490,
+        190
+      ],
+      "size": [
+        140,
+        64
+      ],
+      "sources": [
+        {
+          "path": "tidewell/etl.py",
+          "line": 134,
+          "end_line": 137,
+          "label": "load"
+        },
+        {
+          "path": "tidewell/store.py",
+          "line": 11,
+          "end_line": 22,
+          "label": "load_company"
+        }
+      ]
+    },
+    {
+      "id": "network",
+      "type": "backend",
+      "label": "Network design",
+      "sublabel": "which DCs, which flows",
+      "tag": "MILP",
+      "pos": [
+        700,
+        190
+      ],
+      "size": [
+        140,
+        64
+      ],
+      "sources": [
+        {
+          "path": "tidewell/network.py",
+          "line": 37,
+          "end_line": 92,
+          "label": "design"
+        }
+      ]
+    },
+    {
+      "id": "plan",
+      "type": "backend",
+      "label": "Production plan",
+      "sublabel": "Wagner-Whitin",
+      "tag": "within capacity",
+      "pos": [
+        970,
+        70
+      ],
+      "size": [
+        140,
+        64
+      ],
+      "sources": [
+        {
+          "path": "tidewell/lotsizing.py",
+          "line": 22,
+          "end_line": 44,
+          "label": "wagner_whitin"
+        },
+        {
+          "path": "tidewell/lotsizing.py",
+          "line": 89,
+          "end_line": 121,
+          "label": "plan"
+        }
+      ]
+    },
+    {
+      "id": "stock",
+      "type": "backend",
+      "label": "Safety stock",
+      "sublabel": "demand + late delivery",
+      "pos": [
+        970,
+        250
+      ],
+      "size": [
+        140,
+        64
+      ],
+      "sources": [
+        {
+          "path": "tidewell/safetystock.py",
+          "line": 38,
+          "end_line": 63,
+          "label": "size"
+        }
+      ]
+    },
+    {
+      "id": "score",
+      "type": "backend",
+      "label": "Scorecard",
+      "sublabel": "cost, service, fill rate",
+      "pos": [
+        1180,
+        190
+      ],
+      "size": [
+        140,
+        64
+      ],
+      "sources": [
+        {
+          "path": "tidewell/chain.py",
+          "line": 18,
+          "end_line": 36,
+          "label": "run"
+        }
+      ]
+    },
+    {
+      "id": "analytics",
+      "type": "backend",
+      "label": "Decision analytics",
+      "sublabel": "scenarios, DC sets",
+      "pos": [
+        1180,
+        380
+      ],
+      "size": [
+        140,
+        64
+      ],
+      "sources": [
+        {
+          "path": "tidewell/analytics.py",
+          "line": 15,
+          "end_line": 150,
+          "label": "analytics"
+        }
+      ]
+    },
+    {
+      "id": "out",
+      "type": "frontend",
+      "label": "Reports, dashboard",
+      "sublabel": "summary, charts, web app",
+      "pos": [
+        970,
+        380
+      ],
+      "size": [
+        140,
+        64
+      ],
+      "sources": [
+        {
+          "path": "tidewell/run.py",
+          "line": 13,
+          "end_line": 77,
+          "label": "main"
+        },
+        {
+          "path": "tidewell/api.py",
+          "line": 45,
+          "end_line": 79,
+          "label": "dashboard"
+        }
+      ]
+    },
+    {
+      "id": "nofeasible",
+      "type": "security",
+      "label": "No feasible network",
+      "sublabel": "reported, not hidden",
+      "pos": [
+        700,
+        380
+      ],
+      "size": [
+        140,
+        64
+      ],
+      "sources": [
+        {
+          "path": "tidewell/network.py",
+          "line": 40,
+          "end_line": 46,
+          "label": "Infeasible"
+        },
+        {
+          "path": "tidewell/chain.py",
+          "line": 21,
+          "end_line": 22,
+          "label": "feasible False"
+        }
+      ]
+    },
+    {
+      "id": "checks",
+      "type": "security",
+      "label": "Verification",
+      "sublabel": "checks, run by CI",
+      "pos": [
+        490,
+        400
+      ],
+      "size": [
+        140,
+        64
+      ],
+      "sources": [
+        {
+          "path": "tidewell/checks.py",
+          "line": 21,
+          "end_line": 117,
+          "label": "company_checks"
+        },
+        {
+          "path": "verify.py",
+          "line": 1,
+          "end_line": 142,
+          "label": "verify"
+        },
+        {
+          "path": ".github/workflows/verify.yml",
+          "line": 1,
+          "end_line": 23,
+          "label": "CI"
+        }
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "synthetic-to-systems",
+      "from": "synthetic",
+      "to": "systems",
+      "label": "same pipeline",
+      "variant": "dashed"
+    },
+    {
+      "id": "systems-to-etl",
+      "from": "systems",
+      "to": "etl",
+      "label": "9 CSVs",
+      "variant": "emphasis"
+    },
+    {
+      "id": "etl-to-store",
+      "from": "etl",
+      "to": "store",
+      "label": "clean tables",
+      "variant": "emphasis"
+    },
+    {
+      "id": "store-to-network",
+      "from": "store",
+      "to": "network",
+      "label": "company",
+      "variant": "emphasis"
+    },
+    {
+      "id": "network-to-plan",
+      "from": "network",
+      "to": "plan",
+      "label": "volume per plant"
+    },
+    {
+      "id": "network-to-stock",
+      "from": "network",
+      "to": "stock",
+      "label": "DC serves market"
+    },
+    {
+      "id": "plan-to-score",
+      "from": "plan",
+      "to": "score"
+    },
+    {
+      "id": "stock-to-score",
+      "from": "stock",
+      "to": "score"
+    },
+    {
+      "id": "score-to-analytics",
+      "from": "score",
+      "to": "analytics",
+      "label": "reruns scenarios"
+    },
+    {
+      "id": "analytics-to-out",
+      "from": "analytics",
+      "to": "out",
+      "label": "reports"
+    },
+    {
+      "id": "network-to-nofeasible",
+      "from": "network",
+      "to": "nofeasible",
+      "label": "no plan",
+      "variant": "dashed"
+    },
+    {
+      "id": "checks-to-store",
+      "from": "checks",
+      "to": "store",
+      "label": "recovers true data",
+      "variant": "security"
+    },
+    {
+      "id": "score-to-dashboard",
+      "from": "score",
+      "to": "out",
+      "label": "live dashboard",
+      "variant": "dashed",
+      "fromSide": "right",
+      "toSide": "bottom",
+      "via": [
+        [
+          1390,
+          222
+        ],
+        [
+          1390,
+          500
+        ],
+        [
+          1040,
+          500
+        ]
+      ],
+      "labelAt": [
+        1390,
+        360
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Why it can be trusted",
+      "items": [
+        "Models read only the clean store",
+        "Units in must equal units out in the ETL",
+        "Plan matches textbook Wagner-Whitin when capacity allows",
+        "Brute force over every DC set confirms the choice"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "How it fails safely",
+      "items": [
+        "No feasible network is reported, not hidden",
+        "A bad ETL file stops the load",
+        "No feasible production plan raises an error",
+        "The dashboard says no feasible plan"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "What it measured (this repo)",
+      "items": [
+        "9,128 order lines became 84 demand profiles",
+        "$650,458 a week, 3.7% below the reference case",
+        "73 checks; 343 of 343 on 10 other companies",
+        "GitHub Action passes in about 6 minutes"
+      ]
+    }
+  ]
+}
