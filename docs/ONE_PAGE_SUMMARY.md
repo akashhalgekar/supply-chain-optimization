@@ -24,8 +24,15 @@
 - **Robustness:** the same pipeline and checks pass on 10 other synthetic companies of different size, geography and cost structure (`docs/ROBUSTNESS.md`).
 - **Honesty:** the exact DC set moves with the freight rate, delivery radius and road factor, and the docs say so. The saving is modest and the project explains why.
 
-## How AI was used
+## Models used in the backend
 
-AI wrote the code. The supply chain judgement was applied around it: framing the question, requiring realism, auditing the first draft (16 problems found, such as a holding cost equal to about 200% of a water pallet's value a year), and refusing to accept results that could not be explained. Credit for the case idea goes to the Supply Science video that inspired it (`docs/ATTRIBUTION.md`).
+| Question | Model | Where |
+| --- | --- | --- |
+| Which warehouses to run, and which plant ships what to which market | Mixed integer linear program (facility location), solved with PuLP and the CBC solver | `tidewell/network.py` |
+| When each plant should produce | Wagner-Whitin lot sizing (dynamic programming), plus a capacity-aware mixed integer program when plant capacity binds | `tidewell/lotsizing.py` |
+| How much safety stock each warehouse holds | Safety stock formula with demand and delivery-time variability (normal distribution), and fill rate from the normal loss function | `tidewell/safetystock.py` |
+| Which option is best, and how sure we can be | Brute force over every warehouse combination, scenario reruns and one-at-a-time sensitivity | `tidewell/analytics.py` |
+
+The data side is a pandas ETL, and the dashboard is served by FastAPI. No machine learning or language model runs in the backend: it is classical operations research and statistics.
 
 **Read next:** `docs/PROJECT_STORY.md`, `docs/EXECUTIVE_SUMMARY.md`, `docs/AUDIT.md`.
