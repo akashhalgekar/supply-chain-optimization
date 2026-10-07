@@ -61,10 +61,12 @@ def company_checks(truth, co, tables, emit):
     emit("PLAN: no DC above the planning limit in the peak week", (dcl <= t.max_utilisation + 1e-6).all(), f"busiest {dcl.max():.0%}")
     emit("PLAN: every delivery is within the service radius", all(co.mi_out.loc[r.dc, r.market] <= t.max_delivery_miles for r in net.flows_out.itertuples()), f"{t.max_delivery_miles:,.0f} miles")
     emit("PLAN: every plant only makes items it can make", all(r.sku in co.can_make(r.plant) for r in net.flows_in.itertuples()))
-    cap = co.plants.set_index("code").capacity * t.max_utilisation       # planning limit, the same rule the network uses
+    capacity = co.plants.set_index("code").capacity
+    limit = capacity * t.max_utilisation                                 # planning limit, the same rule the network uses
     weekly_load = lots.weekly.groupby(["plant", "week"]).produce.sum().reset_index()
-    emit("PLAN: production never exceeds a plant's planning limit in any week", all(r.produce <= cap[r.plant] + 1e-3 for r in weekly_load.itertuples()),
-         f"busiest week {max(r.produce / (cap[r.plant] / t.max_utilisation) for r in weekly_load.itertuples()):.0%} of capacity")
+    busiest = max((r.produce / capacity[r.plant] for r in weekly_load.itertuples()), default=0.0)
+    emit("PLAN: production never exceeds a plant's planning limit in any week", all(r.produce <= limit[r.plant] + 1e-3 for r in weekly_load.itertuples()),
+         f"busiest week {busiest:.0%} of capacity")
     emit("PLAN: every item's production covers its demand", np.allclose(lots.weekly.groupby(["plant", "sku"]).produce.sum(), lots.weekly.groupby(["plant", "sku"]).demand.sum(), atol=1e-4))
     bad = []
     for (plant, sku), g in lots.weekly.groupby(["plant", "sku"]):
@@ -80,7 +82,7 @@ def company_checks(truth, co, tables, emit):
             continue
         plans = {s: lotsizing.wagner_whitin(v, t.setup_cost, co.hold_week(s, t), co.max_cover_weeks(s, t)) for s, v in series.items()}
         load = np.sum([p["produce"] for p in plans.values()], axis=0)
-        if (load > cap[plant] + 1e-6).any():
+        if (load > limit[plant] + 1e-6).any():
             overloaded.add(plant)
         ww = sum(p["total"] for p in plans.values())
         ww_total += ww

@@ -72,7 +72,6 @@
   .dial label b { font-weight:600; color:var(--tide) }
   .dial p { margin:2px 0 6px; font-size:12.5px; color:var(--muted); line-height:1.4 }
   input[type=range] { width:100%; accent-color:var(--tide); margin:0 }
-  .changed label::after { content:""; }
   .reset { margin-top:18px; width:100%; border:1px solid var(--rule); background:none; padding:9px; border-radius:10px; cursor:pointer; font-weight:600 }
   .reset:hover { border-color:var(--slate) }
 
@@ -166,7 +165,7 @@
         </div>
         <div class="panel">
           <h2>Plant load in the busiest week</h2>
-          <p class="lede">The black line is the 90% planning limit. Plants are never planned past it, so there is room for breakdowns.</p>
+          <p class="lede" id="plantLede">The black line is the planning limit. Plants are never planned past it, so there is room for breakdowns.</p>
           <div class="rows" id="plants"></div>
           <p class="foot" id="runs"></p>
         </div>
@@ -206,6 +205,7 @@ const $ = id => document.getElementById(id);
 const usd = n => "$" + Math.round(n).toLocaleString();
 let defaults = {}, state = {}, base = null, seq = 0, timer = null;
 
+$("verdictSub").dataset.text = $("verdictSub").textContent;
 fetch("/api/defaults").then(r => r.json()).then(d => { defaults = d; state = {...d}; build(); run(); });
 
 function build() {
@@ -237,20 +237,26 @@ $("reset").onclick = () => setState({});
 
 function busy(on) {
   $("results").classList.toggle("stale", on); $("band").classList.toggle("stale", on);
-  $("verdictSub").innerHTML = on ? `<span class="status busy"><i></i>Re-solving the chain…</span>` : $("verdictSub").dataset.text || $("verdictSub").innerHTML;
+  if (on) $("verdictSub").innerHTML = `<span class="status busy"><i></i>Re-solving the chain…</span>`;
+  else $("verdictSub").textContent = $("verdictSub").dataset.text;
 }
 
 async function run() {
   const id = ++seq; busy(true);
   let d;
-  try { d = await (await fetch("/api/run", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(state)})).json(); }
-  catch (e) { d = {feasible:false, message:"The optimiser did not respond. Check the server is running, then move a dial to try again."}; }
+  try {
+    const res = await fetch("/api/run", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(state)});
+    d = res.ok ? await res.json()
+      : {feasible:false, invalid:true, message: res.status === 422 ? "One of the dial values is outside the range the model accepts. Reset to base plan to continue." : `The optimiser returned an error (${res.status}). Reset to base plan to try again.`};
+  } catch (e) { d = {feasible:false, invalid:true, message:"The optimiser did not respond. Check the server is running, then move a dial to try again."}; }
   if (id !== seq) return;                      // a newer request is on its way; ignore this one
   if (!base && d.feasible) base = d;
   busy(false);
   if (!d.feasible) {
     $("warn").hidden = false;
-    $("warn").textContent = (d.message || "No plan meets demand with these settings.") + " Lower demand or reset to see a plan again. The figures below are from the last plan that worked.";
+    const advice = d.invalid ? "" : " Lower demand or reset to see a plan again.";
+    const last = base ? " The figures below are from the last plan that worked." : "";
+    $("warn").textContent = (d.message || "No plan meets demand with these settings.") + advice + last;
     $("results").classList.add("stale"); $("band").classList.add("stale");
     return;
   }
@@ -295,17 +301,19 @@ function render(d) {
   const bmap = Object.fromEntries(base.cost_breakdown.map(x => [x.label, x.value]));
   $("costs").innerHTML = d.cost_breakdown.map(x => `<div class="row ${isBase() ? "" : "with-delta"}"><span>${x.label}</span><span class="track"><span class="fill" style="width:${100*x.value/mx}%"></span></span><span class="val num">${usd(x.value)}</span>${isBase() ? "" : `<span class="num dcell">${delta(x.value, bmap[x.label] ?? x.value)}</span>`}</div>`).join("");
 
-  const lim = d.planning_limit || .9;
+  const lim = d.planning_limit;
+  $("plantLede").textContent = `The black line is the ${Math.round(lim*100)}% planning limit. Plants are never planned past it, so there is room for breakdowns.`;
   $("plants").innerHTML = d.plants.map(p => {
-    const v = p.busiest_production_week ?? p.peak_week_load;
+    const v = p.busiest_production_week;
     return `<div class="row"><span>${p.plant}</span><span class="track"><span class="fill ${v > lim + .001 ? "hot" : ""}" style="width:${Math.min(100, v*100)}%"></span><span class="limit" style="left:${lim*100}%"></span></span><span class="val num">${Math.round(v*100)}%</span></div>`;
   }).join("");
-  $("runs").textContent = `Batching cuts production runs from ${d.production.runs_if_weekly} to ${d.production.runs} over 12 weeks and saves ${usd(d.production.saved_vs_weekly)} against making every item every week.`;
+  const runDiff = d.production.runs - base.production.runs;
+  $("runs").textContent = `Batching cuts production runs from ${d.production.runs_if_weekly} to ${d.production.runs} over 12 weeks and saves ${usd(d.production.saved_vs_weekly)} against making every item every week.` + (isBase() || !runDiff ? "" : ` That is ${Math.abs(runDiff)} ${runDiff > 0 ? "more" : "fewer"} runs than the base plan.`);
 
   const smx = Math.max(...d.stock.by_dc.map(s => s.pallets));
-  const late = 1 - d.stock.if_demand_only / d.stock.safety_stock;
+  const lateShare = d.stock.safety_stock > 0 ? 1 - d.stock.if_demand_only / d.stock.safety_stock : 0;
   $("ssTitle").textContent = `Safety stock: ${d.stock.safety_stock.toLocaleString()} pallets`;
-  $("ssLede").textContent = `Demand swings alone would need ${d.stock.if_demand_only.toLocaleString()} pallets. The other ${Math.round(late*100)}% is there because deliveries arrive late${late > .5 ? ", so late deliveries, not demand, drive most of the buffer" : ""}. That split depends on the delivery spread assumed in this simulated company.`;
+  $("ssLede").textContent = `Demand swings alone would need ${d.stock.if_demand_only.toLocaleString()} pallets. The other ${Math.round(lateShare*100)}% is there because deliveries arrive late${lateShare > .5 ? ", so late deliveries, not demand, drive most of the buffer" : ""}. That split depends on the delivery spread assumed in this simulated company.`;
   $("stock").innerHTML = d.stock.by_dc.map(s => `<div class="row"><span>${s.dc}</span><span class="track"><span class="fill" style="width:${100*s.pallets/smx}%"></span></span><span class="val num">${s.pallets.toLocaleString()}</span></div>`).join("");
 }
 function isBase() { return Object.keys(DIALS).every(k => Math.abs(defaults[k] - state[k]) < 1e-9); }
