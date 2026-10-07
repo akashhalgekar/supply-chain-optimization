@@ -37,9 +37,9 @@ The question: **which DCs should Tidewell run, when should each plant produce, a
 
 | Finding | Number |
 | --- | --- |
-| Cost of the lowest-cost network (Atlanta, Newark, Dallas, Los Angeles, Seattle) | $650,458 a week, $33.8M a year, $311 a pallet |
-| Saving against a reference case (all DCs open, weekly production) | 3.7%: $25,272 a week, $1.31M a year |
-| Production runs over 12 weeks | 168 become 39 |
+| Cost of the lowest-cost network (Atlanta, Newark, Dallas, Los Angeles, Seattle) | $650,848 a week, $33.8M a year, $312 a pallet |
+| Saving against a reference case (all DCs open, weekly production) | 3.7%: $24,882 a week, $1.29M a year |
+| Production runs over 12 weeks | 168 become 43 |
 | Safety stock | 1,088 pallets; 464 if late deliveries were ignored, so 57% of the stock exists because trucks arrive late. That share depends on the delivery-time spread I assumed: 32% at half, 77% at double |
 | Service level versus fill rate | 95% cycle service level is about 99.3% of units served from stock |
 | The real decision | Closing Chicago is cheapest, but keeping all six DCs costs only 0.4% more and raises next-day coverage from 68% to 80%. The project recommends keeping all six |

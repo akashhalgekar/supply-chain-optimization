@@ -1,8 +1,8 @@
 input,swing_usd_week,swing_share_of_cost
-Demand,221139.0663,0.34
-Transport rate per mile,71592.321,0.1101
-DC fixed cost,39046.4115,0.06
-Production setup cost,3149.2843,0.0048
-Holding cost rate,1747.6947,0.0027
+Demand,222111.9893,0.3413
+Transport rate per mile,71724.8219,0.1102
+DC fixed cost,38763.7041,0.0596
+Production setup cost,3440.0,0.0053
+Holding cost rate,1610.7828,0.0025
 Lead times,287.1699,0.0004
 Service level (+/- 2 points),195.8339,0.0003

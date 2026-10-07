@@ -43,7 +43,7 @@ A dynamic programme for lot sizing: given weekly demand, a setup cost and a hold
 Cycle service level is the share of replenishment cycles without a stockout. Fill rate is the share of units served from stock. At 95% cycle service level the fill rate here is about 99.3%. People mix them up.
 
 **Q: Why not close Chicago if it is cheapest?**
-It is cheapest by $2,415 a week (0.4%), but Chicago is a large market and closing its DC drops next-day coverage from 80% to 68%. I recommend keeping all six unless that coverage is worth less than 0.4% of cost. It is a business trade-off, and the project says so.
+It is cheapest by $2,698 a week (0.4%), but Chicago is a large market and closing its DC drops next-day coverage from 80% to 68%. I recommend keeping all six unless that coverage is worth less than 0.4% of cost. It is a business trade-off, and the project says so.
 
 **Q: Why check capacity against the peak week?**
 A network that is full on average cannot make the summer peak. Capacity is checked against the busiest week with a 90% margin.

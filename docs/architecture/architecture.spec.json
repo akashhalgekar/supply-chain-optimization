@@ -463,9 +463,9 @@
       "title": "What it measured (this repo)",
       "items": [
         "9,128 order lines became 84 demand profiles",
-        "$650,458 a week, 3.7% below the reference case",
-        "73 checks; 343 of 343 on 10 other companies",
-        "GitHub Action passes in about 6 minutes"
+        "$650,848 a week, 3.7% below the reference case",
+        "72 checks; 343 of 343 on 10 other companies",
+        "GitHub Action reruns everything on every push"
       ]
     }
   ]

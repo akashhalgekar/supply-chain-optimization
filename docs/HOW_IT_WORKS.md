@@ -74,12 +74,12 @@ The dashboard re-runs the whole chain when you move a dial.
 | Question | Answer | What drives it |
 | --- | --- | --- |
 | Which DCs? | Cost alone says close Chicago. Service says keep all six. | DC fixed cost against transport cost, inside the 1,100-mile delivery radius |
-| Production? | 168 weekly runs become 39 | setup cost ($2,400) against holding cost (22% of value a year), shelf life and plant capacity |
+| Production? | 168 weekly runs become 43 | setup cost ($2,400) against holding cost (22% of value a year), shelf life and plant capacity |
 | Safety stock? | 1,088 pallets at 95% service (464 if late deliveries were ignored) | delivery reliability and demand swings |
-| Total | $650,458 a week ($33.8M a year), $311 a pallet, 9,448 t CO2 a year | production is 53% of it |
+| Total | $650,848 a week ($33.8M a year), $312 a pallet, 9,448 t CO2 a year | production is 53% of it |
 
 Things worth a second look before trusting them:
-- **Chicago is a big market and the cheapest network closes its DC.** It is then served from Atlanta (677 miles) and Dallas (925 miles). Keeping all six DCs costs $2,415 a week more
+- **Chicago is a big market and the cheapest network closes its DC.** It is then served from Atlanta (677 miles) and Dallas (925 miles). Keeping all six DCs costs $2,698 a week more
   (0.4%) but raises next-day coverage from 68% to 80%, so the summary recommends keeping all six unless that coverage is worth less than 0.4% of cost.
 - **Late deliveries drive most of the safety stock in this simulated company.** 57% of it exists because of them. That share depends on the delivery-time spread assumed for the simulated DCs: 32% at half that spread, 77% at double.
 - **The exact DC set depends on assumptions.** A 900-mile radius keeps all six DCs, a 1,300-mile radius closes Atlanta and Seattle, and a higher freight rate keeps all six. The cost gap between the options is small, which is why service, not cost, decides it (`docs/DATA_AND_ASSUMPTIONS.md`).
@@ -106,7 +106,7 @@ Things worth a second look before trusting them:
 2. **The models agree on both.** Same DCs and same weekly cost on the recovered data as on the true company.
 3. **The plan is feasible.** Every demand is met exactly, flows balance at each DC, every delivery is inside the radius, no site is above its limit in the peak week,
    no production week exceeds plant capacity, and no stock outlives its shelf-life limit.
-4. **Production versus textbook.** The capacity-aware plan costs $128,199 against $108,783 for textbook Wagner-Whitin, which would overload Columbus, Dallas and Sacramento
+4. **Production versus textbook.** The capacity-aware plan costs $132,878 against $108,783 for textbook Wagner-Whitin, which would push Columbus, Dallas and Sacramento past the 90% planning limit
    in several weeks. The difference is the price of a plan the plants can actually run.
 5. **Safety stock behaves.** Never below the demand-only figure, fill rate above the service level, more stock for a higher service level.
 6. **Brute force agrees.** The network model's DC choice is the best of all workable sets on network cost.

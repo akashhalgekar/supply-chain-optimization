@@ -29,7 +29,7 @@ Every box is traced to the code. The [interactive version](https://akashhalgekar
 3. **Inputs checked.** Freight rate, holding rate, trailer size and road distances benchmarked against 2026 sources ([docs/DATA_AND_ASSUMPTIONS.md](docs/DATA_AND_ASSUMPTIONS.md)).
 4. **Modelled.** Network design picks DCs and flows, Wagner-Whitin plans production, and safety stock covers demand swings and late deliveries.
 5. **Tested.** Every DC combination costed on the whole chain, nine stress tests, sensitivity on every input and assumption, and the same checks on ten other synthetic companies.
-6. **Conclusion.** The cheapest network closes Chicago ($650,458 a week, 3.7% below the reference case). Keeping all six DCs costs only 0.4% more and lifts next-day coverage from 68% to 80%, so the recommendation is to keep all six. 57% of safety stock exists because deliveries arrive late, and production runs fall from 168 to 39.
+6. **Conclusion.** The cheapest network closes Chicago ($650,848 a week, 3.7% below the reference case). Keeping all six DCs costs only 0.4% more and lifts next-day coverage from 68% to 80%, so the recommendation is to keep all six. 57% of safety stock exists because deliveries arrive late, and production runs fall from 168 to 43.
 
 **Start with [docs/ONE_PAGE_SUMMARY.md](docs/ONE_PAGE_SUMMARY.md) (one page), then [docs/PROJECT_STORY.md](docs/PROJECT_STORY.md) (the story and how AI was used).**
 
@@ -46,8 +46,8 @@ The case structure was inspired by a Supply Science video; see [docs/ATTRIBUTION
 
 ## What it finds (in the simulated company)
 
-- The lowest-cost network closes Chicago: **$650,458 a week, 3.7% below a reference case** of all six DCs open. Keeping all six costs only 0.4% more and raises next-day coverage from 68% to 80%, so the recommendation is to keep all six: the real decision is service, not cost.
-- Production runs fall from 168 to 39 over 12 weeks, inside plant capacity and shelf-life limits.
+- The lowest-cost network closes Chicago: **$650,848 a week, 3.7% below a reference case** of all six DCs open. Keeping all six costs only 0.4% more and raises next-day coverage from 68% to 80%, so the recommendation is to keep all six: the real decision is service, not cost.
+- Production runs fall from 168 to 43 over 12 weeks, inside the 90% plant planning limit and shelf-life limits.
 - 57% of safety stock exists because deliveries arrive late, not because demand swings. That share depends on the delivery-time spread assumed for the simulated DCs: 32% at half that spread, 77% at double. It shows the method, not a discovery about real companies.
 - Demand can grow about 40% before the network cannot serve it. Losing Columbus or Dallas leaves demand unmet, and a next-day (600 mile) promise cannot be met from these sites.
 

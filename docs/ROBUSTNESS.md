@@ -17,16 +17,16 @@ Capacities are sized from demand, so each company can serve itself. If a company
 
 | Company | Items | Plants | DCs | Markets | Pallets/week | Radius (mi) | Demand spread | DCs opened | Weekly cost | Checks passed |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | 6 | 3 | 7 | 20 | 2,762 | 1,100 | 0.10-0.25 | 5 | $797,378 | 33/33 |
-| 2 | 9 | 2 | 4 | 13 | 1,674 | 900 | 0.15-0.30 | 4 | $622,708 | 37/37 |
-| 3 | 8 | 2 | 4 | 12 | 2,141 | 1,300 | 0.15-0.30 | 3 | $913,520 | 34/34 |
-| 4 | 8 | 4 | 7 | 15 | 3,014 | 1,100 | 0.10-0.25 | 5 | $1,172,418 | 34/34 |
-| 5 | 8 | 4 | 4 | 18 | 2,692 | 1,100 | 0.15-0.30 | 3 | $945,302 | 33/33 |
-| 6 | 6 | 3 | 6 | 13 | 3,977 | 1,300 | 0.10-0.25 | 5 | $1,129,545 | 34/34 |
-| 7 | 9 | 3 | 6 | 19 | 3,584 | 1,100 | 0.10-0.25 | 4 | $1,309,291 | 35/35 |
-| 8 | 8 | 2 | 4 | 20 | 4,307 | 1,100 | 0.10-0.25 | 4 | $1,510,976 | 36/36 |
-| 9 | 6 | 4 | 7 | 13 | 2,527 | 1,100 | 0.15-0.30 | 5 | $772,468 | 34/34 |
-| 10 | 8 | 4 | 5 | 12 | 2,957 | 1,100 | 0.10-0.25 | 3 | $1,077,579 | 33/33 |
+| 1 | 6 | 3 | 7 | 20 | 2,762 | 1,100 | 0.10-0.25 | 5 | $803,700 | 33/33 |
+| 2 | 9 | 2 | 4 | 13 | 1,674 | 900 | 0.15-0.30 | 4 | $624,050 | 37/37 |
+| 3 | 8 | 2 | 4 | 12 | 2,141 | 1,300 | 0.15-0.30 | 3 | $913,830 | 34/34 |
+| 4 | 8 | 4 | 7 | 15 | 3,014 | 1,100 | 0.10-0.25 | 5 | $1,175,250 | 34/34 |
+| 5 | 8 | 4 | 4 | 18 | 2,692 | 1,100 | 0.15-0.30 | 3 | $948,255 | 33/33 |
+| 6 | 6 | 3 | 6 | 13 | 3,977 | 1,300 | 0.10-0.25 | 5 | $1,130,507 | 34/34 |
+| 7 | 9 | 3 | 6 | 19 | 3,584 | 1,100 | 0.10-0.25 | 4 | $1,312,924 | 35/35 |
+| 8 | 8 | 2 | 4 | 20 | 4,307 | 1,100 | 0.10-0.25 | 4 | $1,511,753 | 36/36 |
+| 9 | 6 | 4 | 7 | 13 | 2,527 | 1,100 | 0.15-0.30 | 5 | $774,303 | 34/34 |
+| 10 | 8 | 4 | 5 | 12 | 2,957 | 1,100 | 0.10-0.25 | 3 | $1,088,593 | 33/33 |
 
 ## What the checks prove on every company
 
@@ -92,12 +92,12 @@ the results match any real company. That needs real data (see `docs/DATA_AND_ASS
 | PLAN: no DC above the planning limit in the peak week | 10/10 |
 | PLAN: no plant above the planning limit in the peak week | 10/10 |
 | PLAN: no stock sits longer than the shelf-life limit | 10/10 |
-| PLAN: production never exceeds a plant's weekly capacity | 10/10 |
+| PLAN: production never exceeds a plant's planning limit in any week | 10/10 |
 | PLAN: what enters each DC equals what leaves | 10/10 |
 | STOCK: DC volumes add up to total demand | 10/10 |
 | STOCK: fill rate at or above the cycle service level | 10/10 |
 | STOCK: higher service level means more stock | 10/10 |
 | STOCK: with lead-time risk, never below demand-only | 10/10 |
 | WW: forcing the capacity solver gives the same cost as the fast path | 10/10 |
-| WW: plants where the two differ are exactly those where the textbook plan overloads capacity | 10/10 |
+| WW: plants where the two differ are exactly those where the textbook plan breaks the planning limit | 10/10 |
 | WW: the capacity-aware plan never beats the textbook lower bound | 10/10 |

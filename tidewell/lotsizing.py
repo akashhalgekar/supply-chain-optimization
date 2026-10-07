@@ -9,7 +9,8 @@ less than about half its life left), so a batch may only cover that many weeks o
 
 Two solvers, on purpose:
   wagner_whitin()   the textbook dynamic programme for ONE item with no capacity limit. Provably optimal.
-  plan()            all items of a plant together as a mixed integer program, so the plant's weekly capacity is respected.
+  plan()            all items of a plant together as a mixed integer program, so the plant's weekly planning limit
+                    (capacity x max_utilisation) is respected.
                     Equals Wagner-Whitin whenever capacity does not bind.
 """
 from dataclasses import dataclass
@@ -79,7 +80,7 @@ def _capacitated(co, plant, cap, vol, need, terms, weeks):
         lp += pulp.lpSum(make[s, w] for s in vol) <= cap
     lp.solve(pulp.PULP_CBC_CMD(msg=0, gapRel=0, threads=4))
     if pulp.LpStatus[lp.status] != "Optimal":
-        raise RuntimeError(f"No feasible production plan for {plant}: the peak weeks exceed its weekly capacity")
+        raise RuntimeError(f"No feasible production plan for {plant}: the peak weeks exceed its weekly planning limit")
     return {k: (make[k].value() or 0.0, keep[k].value() or 0.0) for k in make}, sum(1 for k in run if (run[k].value() or 0) > 0.5)
 
 
@@ -96,7 +97,7 @@ def plan(co: Company, terms: Terms, plant_volume: pd.DataFrame, force_solver=Fal
         vol = {r.sku: r.pallets for r in grp.itertuples() if r.pallets > 1e-6}
         if not vol:
             continue
-        cap = plants.loc[plant, "capacity"]
+        cap = plants.loc[plant, "capacity"] * terms.max_utilisation      # same planning limit as the network model (90% by default)
         need = {(s, w): vol[s] * co.season[w - 1] for s in vol for w in weeks}
         base_runs += sum(1 for v in need.values() if v > 1e-6)
         key = (plant, tuple(sorted((k, round(v, 3)) for k, v in vol.items())), terms.setup_cost, terms.holding_rate_year, cap, force_solver,

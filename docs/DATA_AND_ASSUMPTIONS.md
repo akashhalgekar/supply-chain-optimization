@@ -63,7 +63,7 @@ Each input moved up and down 20% (service level by 2 points), from `output/11_in
 
 | Input | Swing in weekly cost |
 | --- | --- |
-| Demand | 34.0% |
+| Demand | 34.1% |
 | Transport rate per mile | 11.0% |
 | DC fixed cost | 6.0% |
 | Production setup cost | 0.5% |
