@@ -12,18 +12,18 @@ seed,check,passed,detail
 1,ETL: lead times measured from receipts match order processing plus driving time,True,max gap 0.011 weeks
 1,MODELS: the chain is feasible,True,
 1,MODELS: same open DCs on true and recovered data,True,"Charlotte, Chicago, Memphis, Salt Lake City, Houston"
-1,MODELS: weekly cost within 0.01% on true and recovered data,True,"797,378 vs 797,378"
+1,MODELS: weekly cost within 0.01% on true and recovered data,True,"803,700 vs 803,700"
 1,PLAN: every market's demand is met exactly,True,
 1,PLAN: what enters each DC equals what leaves,True,
 1,PLAN: no plant above the planning limit in the peak week,True,
 1,PLAN: no DC above the planning limit in the peak week,True,busiest 90%
 1,PLAN: every delivery is within the service radius,True,"1,100 miles"
 1,PLAN: every plant only makes items it can make,True,
-1,PLAN: production never exceeds a plant's weekly capacity,True,solver tolerance 0.001 pallet
+1,PLAN: production never exceeds a plant's planning limit in any week,True,busiest week 90% of capacity
 1,PLAN: every item's production covers its demand,True,
 1,PLAN: no stock sits longer than the shelf-life limit,True,"limits in weeks: STI00 27, SPA01 30, COL02 14, ICE03 10, ENE04 17, COC05 12"
-1,WW: the capacity-aware plan never beats the textbook lower bound,True,"$204,440 vs $124,190"
-1,WW: plants where the two differ are exactly those where the textbook plan overloads capacity,True,3 differ
+1,WW: the capacity-aware plan never beats the textbook lower bound,True,"$280,299 vs $124,190"
+1,WW: plants where the two differ are exactly those where the textbook plan breaks the planning limit,True,3 differ
 1,WW: forcing the capacity solver gives the same cost as the fast path,True,
 1,"STOCK: with lead-time risk, never below demand-only",True,
 1,STOCK: fill rate at or above the cycle service level,True,99.3% vs 95%
@@ -45,18 +45,18 @@ seed,check,passed,detail
 2,ETL: lead times measured from receipts match order processing plus driving time,True,max gap 0.010 weeks
 2,MODELS: the chain is feasible,True,
 2,MODELS: same open DCs on true and recovered data,True,"Atlanta, Chicago, Orlando, Las Vegas"
-2,MODELS: weekly cost within 0.01% on true and recovered data,True,"622,708 vs 622,708"
+2,MODELS: weekly cost within 0.01% on true and recovered data,True,"624,050 vs 624,050"
 2,PLAN: every market's demand is met exactly,True,
 2,PLAN: what enters each DC equals what leaves,True,
 2,PLAN: no plant above the planning limit in the peak week,True,
 2,PLAN: no DC above the planning limit in the peak week,True,busiest 90%
 2,PLAN: every delivery is within the service radius,True,"1,100 miles"
 2,PLAN: every plant only makes items it can make,True,
-2,PLAN: production never exceeds a plant's weekly capacity,True,solver tolerance 0.001 pallet
+2,PLAN: production never exceeds a plant's planning limit in any week,True,busiest week 90% of capacity
 2,PLAN: every item's production covers its demand,True,
 2,PLAN: no stock sits longer than the shelf-life limit,True,"limits in weeks: STI00 24, SPA01 24, COL02 11, LEM03 12, ICE04 8, ORA05 6, ENE06 16, SPO07 11, COC08 10"
-2,WW: the capacity-aware plan never beats the textbook lower bound,True,"$179,370 vs $122,025"
-2,WW: plants where the two differ are exactly those where the textbook plan overloads capacity,True,2 differ
+2,WW: the capacity-aware plan never beats the textbook lower bound,True,"$195,470 vs $122,025"
+2,WW: plants where the two differ are exactly those where the textbook plan breaks the planning limit,True,2 differ
 2,WW: forcing the capacity solver gives the same cost as the fast path,True,
 2,"STOCK: with lead-time risk, never below demand-only",True,
 2,STOCK: fill rate at or above the cycle service level,True,99.5% vs 95%
@@ -82,18 +82,18 @@ seed,check,passed,detail
 3,ETL: lead times measured from receipts match order processing plus driving time,True,max gap 0.012 weeks
 3,MODELS: the chain is feasible,True,
 3,MODELS: same open DCs on true and recovered data,True,"Dallas, Portland, Nashville"
-3,MODELS: weekly cost within 0.01% on true and recovered data,True,"913,520 vs 913,520"
+3,MODELS: weekly cost within 0.01% on true and recovered data,True,"913,830 vs 913,830"
 3,PLAN: every market's demand is met exactly,True,
 3,PLAN: what enters each DC equals what leaves,True,
 3,PLAN: no plant above the planning limit in the peak week,True,
 3,PLAN: no DC above the planning limit in the peak week,True,busiest 70%
 3,PLAN: every delivery is within the service radius,True,"1,100 miles"
 3,PLAN: every plant only makes items it can make,True,
-3,PLAN: production never exceeds a plant's weekly capacity,True,solver tolerance 0.001 pallet
+3,PLAN: production never exceeds a plant's planning limit in any week,True,busiest week 90% of capacity
 3,PLAN: every item's production covers its demand,True,
 3,PLAN: no stock sits longer than the shelf-life limit,True,"limits in weeks: STI00 28, SPA01 20, COL02 13, LEM03 11, ICE04 11, ORA05 4, ENE06 12, SPO07 11"
-3,WW: the capacity-aware plan never beats the textbook lower bound,True,"$134,786 vs $118,356"
-3,WW: plants where the two differ are exactly those where the textbook plan overloads capacity,True,2 differ
+3,WW: the capacity-aware plan never beats the textbook lower bound,True,"$138,506 vs $118,356"
+3,WW: plants where the two differ are exactly those where the textbook plan breaks the planning limit,True,2 differ
 3,WW: forcing the capacity solver gives the same cost as the fast path,True,
 3,"STOCK: with lead-time risk, never below demand-only",True,
 3,STOCK: fill rate at or above the cycle service level,True,99.4% vs 95%
@@ -116,18 +116,18 @@ seed,check,passed,detail
 4,ETL: lead times measured from receipts match order processing plus driving time,True,max gap 0.010 weeks
 4,MODELS: the chain is feasible,True,
 4,MODELS: same open DCs on true and recovered data,True,"Kansas City, Columbus, Orlando, Denver, Chicago"
-4,MODELS: weekly cost within 0.01% on true and recovered data,True,"1,172,418 vs 1,172,418"
+4,MODELS: weekly cost within 0.01% on true and recovered data,True,"1,175,250 vs 1,175,250"
 4,PLAN: every market's demand is met exactly,True,
 4,PLAN: what enters each DC equals what leaves,True,
 4,PLAN: no plant above the planning limit in the peak week,True,
 4,PLAN: no DC above the planning limit in the peak week,True,busiest 90%
 4,PLAN: every delivery is within the service radius,True,"1,100 miles"
 4,PLAN: every plant only makes items it can make,True,
-4,PLAN: production never exceeds a plant's weekly capacity,True,solver tolerance 0.001 pallet
+4,PLAN: production never exceeds a plant's planning limit in any week,True,busiest week 90% of capacity
 4,PLAN: every item's production covers its demand,True,
 4,PLAN: no stock sits longer than the shelf-life limit,True,"limits in weeks: STI00 30, SPA01 26, COL02 15, ICE03 8, ORA04 6, ENE05 18, SPO06 10, COC07 11"
-4,WW: the capacity-aware plan never beats the textbook lower bound,True,"$216,535 vs $154,330"
-4,WW: plants where the two differ are exactly those where the textbook plan overloads capacity,True,4 differ
+4,WW: the capacity-aware plan never beats the textbook lower bound,True,"$250,512 vs $154,330"
+4,WW: plants where the two differ are exactly those where the textbook plan breaks the planning limit,True,4 differ
 4,WW: forcing the capacity solver gives the same cost as the fast path,True,
 4,"STOCK: with lead-time risk, never below demand-only",True,
 4,STOCK: fill rate at or above the cycle service level,True,99.3% vs 95%
@@ -150,18 +150,18 @@ seed,check,passed,detail
 5,ETL: lead times measured from receipts match order processing plus driving time,True,max gap 0.006 weeks
 5,MODELS: the chain is feasible,True,
 5,MODELS: same open DCs on true and recovered data,True,"Dallas, Salt Lake City, Orlando"
-5,MODELS: weekly cost within 0.01% on true and recovered data,True,"945,302 vs 945,302"
+5,MODELS: weekly cost within 0.01% on true and recovered data,True,"948,255 vs 948,255"
 5,PLAN: every market's demand is met exactly,True,
 5,PLAN: what enters each DC equals what leaves,True,
 5,PLAN: no plant above the planning limit in the peak week,True,
 5,PLAN: no DC above the planning limit in the peak week,True,busiest 88%
 5,PLAN: every delivery is within the service radius,True,"1,100 miles"
 5,PLAN: every plant only makes items it can make,True,
-5,PLAN: production never exceeds a plant's weekly capacity,True,solver tolerance 0.001 pallet
+5,PLAN: production never exceeds a plant's planning limit in any week,True,busiest week 90% of capacity
 5,PLAN: every item's production covers its demand,True,
 5,PLAN: no stock sits longer than the shelf-life limit,True,"limits in weeks: STI00 29, SPA01 20, COL02 12, LEM03 14, ICE04 9, ENE05 13, SPO06 14, COC07 15"
-5,WW: the capacity-aware plan never beats the textbook lower bound,True,"$282,792 vs $204,994"
-5,WW: plants where the two differ are exactly those where the textbook plan overloads capacity,True,4 differ
+5,WW: the capacity-aware plan never beats the textbook lower bound,True,"$318,226 vs $204,994"
+5,WW: plants where the two differ are exactly those where the textbook plan breaks the planning limit,True,4 differ
 5,WW: forcing the capacity solver gives the same cost as the fast path,True,
 5,"STOCK: with lead-time risk, never below demand-only",True,
 5,STOCK: fill rate at or above the cycle service level,True,99.3% vs 95%
@@ -183,18 +183,18 @@ seed,check,passed,detail
 6,ETL: lead times measured from receipts match order processing plus driving time,True,max gap 0.015 weeks
 6,MODELS: the chain is feasible,True,
 6,MODELS: same open DCs on true and recovered data,True,"Denver, Salt Lake City, Indianapolis, Atlanta, Memphis"
-6,MODELS: weekly cost within 0.01% on true and recovered data,True,"1,129,545 vs 1,129,545"
+6,MODELS: weekly cost within 0.01% on true and recovered data,True,"1,130,507 vs 1,130,507"
 6,PLAN: every market's demand is met exactly,True,
 6,PLAN: what enters each DC equals what leaves,True,
 6,PLAN: no plant above the planning limit in the peak week,True,
 6,PLAN: no DC above the planning limit in the peak week,True,busiest 90%
 6,PLAN: every delivery is within the service radius,True,"1,100 miles"
 6,PLAN: every plant only makes items it can make,True,
-6,PLAN: production never exceeds a plant's weekly capacity,True,solver tolerance 0.001 pallet
+6,PLAN: production never exceeds a plant's planning limit in any week,True,busiest week 90% of capacity
 6,PLAN: every item's production covers its demand,True,
 6,PLAN: no stock sits longer than the shelf-life limit,True,"limits in weeks: STI00 25, SPA01 24, COL02 14, LEM03 12, ORA04 7, SPO05 14"
-6,WW: the capacity-aware plan never beats the textbook lower bound,True,"$166,859 vs $149,406"
-6,WW: plants where the two differ are exactly those where the textbook plan overloads capacity,True,2 differ
+6,WW: the capacity-aware plan never beats the textbook lower bound,True,"$178,392 vs $149,406"
+6,WW: plants where the two differ are exactly those where the textbook plan breaks the planning limit,True,2 differ
 6,WW: forcing the capacity solver gives the same cost as the fast path,True,
 6,"STOCK: with lead-time risk, never below demand-only",True,
 6,STOCK: fill rate at or above the cycle service level,True,99.4% vs 95%
@@ -217,18 +217,18 @@ seed,check,passed,detail
 7,ETL: lead times measured from receipts match order processing plus driving time,True,max gap 0.010 weeks
 7,MODELS: the chain is feasible,True,
 7,MODELS: same open DCs on true and recovered data,True,"Chicago, Kansas City, Newark, Los Angeles"
-7,MODELS: weekly cost within 0.01% on true and recovered data,True,"1,309,291 vs 1,309,291"
+7,MODELS: weekly cost within 0.01% on true and recovered data,True,"1,312,924 vs 1,312,924"
 7,PLAN: every market's demand is met exactly,True,
 7,PLAN: what enters each DC equals what leaves,True,
 7,PLAN: no plant above the planning limit in the peak week,True,
 7,PLAN: no DC above the planning limit in the peak week,True,busiest 90%
 7,PLAN: every delivery is within the service radius,True,"1,100 miles"
 7,PLAN: every plant only makes items it can make,True,
-7,PLAN: production never exceeds a plant's weekly capacity,True,solver tolerance 0.001 pallet
+7,PLAN: production never exceeds a plant's planning limit in any week,True,busiest week 90% of capacity
 7,PLAN: every item's production covers its demand,True,
 7,PLAN: no stock sits longer than the shelf-life limit,True,"limits in weeks: STI00 23, SPA01 29, COL02 13, LEM03 15, ICE04 9, ORA05 6, ENE06 13, SPO07 12, COC08 15"
-7,WW: the capacity-aware plan never beats the textbook lower bound,True,"$275,608 vs $228,198"
-7,WW: plants where the two differ are exactly those where the textbook plan overloads capacity,True,2 differ
+7,WW: the capacity-aware plan never beats the textbook lower bound,True,"$319,197 vs $228,198"
+7,WW: plants where the two differ are exactly those where the textbook plan breaks the planning limit,True,2 differ
 7,WW: forcing the capacity solver gives the same cost as the fast path,True,
 7,"STOCK: with lead-time risk, never below demand-only",True,
 7,STOCK: fill rate at or above the cycle service level,True,99.4% vs 95%
@@ -252,18 +252,18 @@ seed,check,passed,detail
 8,ETL: lead times measured from receipts match order processing plus driving time,True,max gap 0.005 weeks
 8,MODELS: the chain is feasible,True,
 8,MODELS: same open DCs on true and recovered data,True,"Memphis, Newark, Denver, Seattle"
-8,MODELS: weekly cost within 0.01% on true and recovered data,True,"1,510,976 vs 1,510,976"
+8,MODELS: weekly cost within 0.01% on true and recovered data,True,"1,511,753 vs 1,511,753"
 8,PLAN: every market's demand is met exactly,True,
 8,PLAN: what enters each DC equals what leaves,True,
 8,PLAN: no plant above the planning limit in the peak week,True,
 8,PLAN: no DC above the planning limit in the peak week,True,busiest 90%
 8,PLAN: every delivery is within the service radius,True,"1,100 miles"
 8,PLAN: every plant only makes items it can make,True,
-8,PLAN: production never exceeds a plant's weekly capacity,True,solver tolerance 0.001 pallet
+8,PLAN: production never exceeds a plant's planning limit in any week,True,busiest week 90% of capacity
 8,PLAN: every item's production covers its demand,True,
 8,PLAN: no stock sits longer than the shelf-life limit,True,"limits in weeks: STI00 24, SPA01 22, COL02 12, LEM03 11, ORA04 4, ENE05 14, SPO06 12, COC07 13"
-8,WW: the capacity-aware plan never beats the textbook lower bound,True,"$191,242 vs $176,000"
-8,WW: plants where the two differ are exactly those where the textbook plan overloads capacity,True,2 differ
+8,WW: the capacity-aware plan never beats the textbook lower bound,True,"$200,568 vs $176,000"
+8,WW: plants where the two differ are exactly those where the textbook plan breaks the planning limit,True,2 differ
 8,WW: forcing the capacity solver gives the same cost as the fast path,True,
 8,"STOCK: with lead-time risk, never below demand-only",True,
 8,STOCK: fill rate at or above the cycle service level,True,99.3% vs 95%
@@ -288,18 +288,18 @@ seed,check,passed,detail
 9,ETL: lead times measured from receipts match order processing plus driving time,True,max gap 0.011 weeks
 9,MODELS: the chain is feasible,True,
 9,MODELS: same open DCs on true and recovered data,True,"Orlando, Kansas City, Charlotte, Los Angeles, Portland"
-9,MODELS: weekly cost within 0.01% on true and recovered data,True,"772,468 vs 772,468"
+9,MODELS: weekly cost within 0.01% on true and recovered data,True,"774,303 vs 774,303"
 9,PLAN: every market's demand is met exactly,True,
 9,PLAN: what enters each DC equals what leaves,True,
 9,PLAN: no plant above the planning limit in the peak week,True,
 9,PLAN: no DC above the planning limit in the peak week,True,busiest 90%
 9,PLAN: every delivery is within the service radius,True,"1,100 miles"
 9,PLAN: every plant only makes items it can make,True,
-9,PLAN: production never exceeds a plant's weekly capacity,True,solver tolerance 0.001 pallet
+9,PLAN: production never exceeds a plant's planning limit in any week,True,busiest week 90% of capacity
 9,PLAN: every item's production covers its demand,True,
 9,PLAN: no stock sits longer than the shelf-life limit,True,"limits in weeks: SPA00 29, COL01 11, LEM02 14, ICE03 12, ENE04 16, SPO05 14"
-9,WW: the capacity-aware plan never beats the textbook lower bound,True,"$274,204 vs $190,053"
-9,WW: plants where the two differ are exactly those where the textbook plan overloads capacity,True,3 differ
+9,WW: the capacity-aware plan never beats the textbook lower bound,True,"$296,223 vs $190,053"
+9,WW: plants where the two differ are exactly those where the textbook plan breaks the planning limit,True,3 differ
 9,WW: forcing the capacity solver gives the same cost as the fast path,True,
 9,"STOCK: with lead-time risk, never below demand-only",True,
 9,STOCK: fill rate at or above the cycle service level,True,99.4% vs 95%
@@ -322,18 +322,18 @@ seed,check,passed,detail
 10,ETL: lead times measured from receipts match order processing plus driving time,True,max gap 0.008 weeks
 10,MODELS: the chain is feasible,True,
 10,MODELS: same open DCs on true and recovered data,True,"Memphis, Portland, Charlotte"
-10,MODELS: weekly cost within 0.01% on true and recovered data,True,"1,077,579 vs 1,077,579"
+10,MODELS: weekly cost within 0.01% on true and recovered data,True,"1,088,593 vs 1,088,593"
 10,PLAN: every market's demand is met exactly,True,
 10,PLAN: what enters each DC equals what leaves,True,
 10,PLAN: no plant above the planning limit in the peak week,True,
 10,PLAN: no DC above the planning limit in the peak week,True,busiest 67%
 10,PLAN: every delivery is within the service radius,True,"1,100 miles"
 10,PLAN: every plant only makes items it can make,True,
-10,PLAN: production never exceeds a plant's weekly capacity,True,solver tolerance 0.001 pallet
+10,PLAN: production never exceeds a plant's planning limit in any week,True,busiest week 90% of capacity
 10,PLAN: every item's production covers its demand,True,
 10,PLAN: no stock sits longer than the shelf-life limit,True,"limits in weeks: STI00 26, SPA01 22, COL02 11, ICE03 10, ORA04 4, ENE05 14, SPO06 14, COC07 14"
-10,WW: the capacity-aware plan never beats the textbook lower bound,True,"$434,619 vs $221,956"
-10,WW: plants where the two differ are exactly those where the textbook plan overloads capacity,True,4 differ
+10,WW: the capacity-aware plan never beats the textbook lower bound,True,"$566,781 vs $221,956"
+10,WW: plants where the two differ are exactly those where the textbook plan breaks the planning limit,True,4 differ
 10,WW: forcing the capacity solver gives the same cost as the fast path,True,
 10,"STOCK: with lead-time risk, never below demand-only",True,
 10,STOCK: fill rate at or above the cycle service level,True,99.3% vs 95%

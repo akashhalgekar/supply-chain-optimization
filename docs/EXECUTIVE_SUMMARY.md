@@ -4,31 +4,31 @@
 
 ## Recommendation
 
-**Cost alone** points to **Atlanta, Newark, Dallas, Los Angeles, Seattle** (close Chicago): 68% of volume within 600 miles. **Service within 1% of that cost** points to **Atlanta, Chicago, Newark, Dallas, Los Angeles, Seattle**: $2,415 a week more (0.4%) for 12 more points of next-day coverage (68% to 80%). **Recommended: Atlanta, Chicago, Newark, Dallas, Los Angeles, Seattle**, unless that coverage is worth less than 0.4% of cost to the business. Either way, make production in batches rather than every week and hold **1,088 pallets** of safety stock for a 95% cycle service level (that figure is for the lowest-cost network). Deliveries stay within 1,100 miles (two-day ground).
+**Cost alone** points to **Atlanta, Newark, Dallas, Los Angeles, Seattle** (close Chicago): 68% of volume within 600 miles. **Service within 1% of that cost** points to **Atlanta, Chicago, Newark, Dallas, Los Angeles, Seattle**: $2,698 a week more (0.4%) for 12 more points of next-day coverage (68% to 80%). **Recommended: Atlanta, Chicago, Newark, Dallas, Los Angeles, Seattle**, unless that coverage is worth less than 0.4% of cost to the business. Either way, make production in batches rather than every week and hold **1,088 pallets** of safety stock for a 95% cycle service level (that figure is for the lowest-cost network). Deliveries stay within 1,100 miles (two-day ground).
 
 | | Per week | Per year |
 | --- | --- | --- |
 | Reference case (all 6 DCs open, every item made every week) | $675,731 | $35,137,998 |
-| Lowest-cost chain (5 DCs) | $650,458 | $33,823,842 |
-| Service option (6 DCs) | $652,874 | $33,949,428 |
-| Saving, lowest-cost chain | $25,272 (3.7%) | $1,314,157 |
+| Lowest-cost chain (5 DCs) | $650,848 | $33,844,115 |
+| Service option (6 DCs) | $653,546 | $33,984,402 |
+| Saving, lowest-cost chain | $24,882 (3.7%) | $1,293,884 |
 
-Closing DCs saves 0.3% of reference-case cost and batching production saves 3.4%.
+Closing DCs saves 0.3% of reference-case cost and batching production saves 3.3%.
 Production is 53% of weekly cost, so no network or inventory lever can move the total far. Larger savings would have to come from plant cost and sourcing.
 
 ## Why these DCs
 
 - **Closing Chicago frees $18,846 a week of fixed DC cost.** The extra transport and handling cost less than that, so the reference case falls by $2,356 a week.
 - **Tested on the whole chain, not just the network.** All 7 workable DC combinations were costed on network, production and stock together. The cheapest on total cost is Atlanta, Newark, Dallas, Los Angeles, Seattle. The recommended set is also the cheapest on the whole chain, so the simpler network-first answer stands.
-- **The decision is flat on cost and not flat on service.** The three cheapest sets are within $3,114 a week of each other, but next-day coverage ranges from 57% to 80%. If next-day coverage matters to customers, Atlanta, Chicago, Newark, Dallas, Los Angeles, Seattle gives 80% within 600 miles for $2,415 a week more (0.4%).
+- **The decision is flat on cost and not flat on service.** The three cheapest sets are within $3,397 a week of each other, but next-day coverage ranges from 57% to 80%. If next-day coverage matters to customers, Atlanta, Chicago, Newark, Dallas, Los Angeles, Seattle gives 80% within 600 miles for $2,698 a week more (0.4%).
 
 | Open DCs | Whole-chain cost per week | Versus cheapest | Volume within 600 miles |
 | --- | --- | --- | --- |
-| Atlanta, Newark, Dallas, Los Angeles, Seattle | $650,458 | +0 | 68% |
-| Atlanta, Chicago, Newark, Dallas, Los Angeles, Seattle | $652,874 | +2,415 | 80% |
-| Atlanta, Chicago, Dallas, Los Angeles, Seattle | $653,573 | +3,114 | 57% |
-| Atlanta, Dallas, Los Angeles, Seattle | $661,666 | +11,207 | 40% |
-| Atlanta, Chicago, Newark, Los Angeles, Seattle | $670,667 | +20,209 | 79% |
+| Atlanta, Newark, Dallas, Los Angeles, Seattle | $650,848 | +0 | 68% |
+| Atlanta, Chicago, Newark, Dallas, Los Angeles, Seattle | $653,546 | +2,698 | 80% |
+| Atlanta, Chicago, Dallas, Los Angeles, Seattle | $654,245 | +3,397 | 57% |
+| Atlanta, Dallas, Los Angeles, Seattle | $662,055 | +11,207 | 40% |
+| Atlanta, Chicago, Newark, Los Angeles, Seattle | $671,483 | +20,635 | 79% |
 
 ## Safety stock: two things worth knowing
 
@@ -49,21 +49,21 @@ Chicago has no DC of its own in the recommendation but is itself a market: it is
 
 | Scenario the network can survive | Weekly cost vs base | Open DCs |
 | --- | --- | --- |
-| Demand +20% | +17.0% | Atlanta, Newark, Dallas, Los Angeles, Seattle |
+| Demand +20% | +17.1% | Atlanta, Newark, Dallas, Los Angeles, Seattle |
 | Transport rate x2 | +25.6% | Atlanta, Chicago, Newark, Dallas, Los Angeles, Seattle |
 | Deliveries 50% slower (lead times x1.5) | +0.1% | Atlanta, Newark, Dallas, Los Angeles, Seattle |
 | DC fixed cost +50% | +7.2% | Atlanta, Dallas, Los Angeles, Seattle |
-| Sacramento plant is down | +4.4% | Atlanta, Chicago, Newark, Dallas, Los Angeles, Seattle |
+| Sacramento plant is down | +4.5% | Atlanta, Chicago, Newark, Dallas, Los Angeles, Seattle |
 
 ## Where to spend measurement effort
 
 | Input (moved +/- 20%) | Swing in weekly cost |
 | --- | --- |
-| Demand | $221,139 (34.0%) |
-| Transport rate per mile | $71,592 (11.0%) |
-| DC fixed cost | $39,046 (6.0%) |
-| Production setup cost | $3,149 (0.5%) |
-| Holding cost rate | $1,748 (0.3%) |
+| Demand | $222,112 (34.1%) |
+| Transport rate per mile | $71,725 (11.0%) |
+| DC fixed cost | $38,764 (6.0%) |
+| Production setup cost | $3,440 (0.5%) |
+| Holding cost rate | $1,611 (0.2%) |
 | Lead times | $287 (0.0%) |
 | Service level (+/- 2 points) | $196 (0.0%) |
 

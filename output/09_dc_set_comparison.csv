@@ -1,8 +1,8 @@
 open_dcs,n_open,network_usd_week,planning_usd_week,stock_usd_week,total_usd_week,next_day_share,rank_total,rank_network_only
-"Atlanta, Newark, Dallas, Los Angeles, Seattle",5,638221.0,10683.0,1554.0,650458.0,1.0,1,1
-"Atlanta, Chicago, Newark, Dallas, Los Angeles, Seattle",6,640557.0,10743.0,1574.0,652874.0,1.0,2,2
-"Atlanta, Chicago, Dallas, Los Angeles, Seattle",5,641269.0,10743.0,1561.0,653573.0,1.0,3,3
-"Atlanta, Dallas, Los Angeles, Seattle",4,649406.0,10683.0,1576.0,661666.0,0.0,4,4
-"Atlanta, Chicago, Newark, Los Angeles, Seattle",5,659068.0,10022.0,1577.0,670667.0,1.0,5,5
-"Atlanta, Chicago, Los Angeles, Seattle",4,659780.0,10022.0,1564.0,671366.0,1.0,6,6
-"Atlanta, Newark, Los Angeles, Seattle",4,671229.0,10006.0,1575.0,682810.0,1.0,7,7
+"Atlanta, Newark, Dallas, Los Angeles, Seattle",5,638221.0,11073.0,1554.0,650848.0,1.0,1,1
+"Atlanta, Chicago, Newark, Dallas, Los Angeles, Seattle",6,640557.0,11415.0,1574.0,653546.0,1.0,2,2
+"Atlanta, Chicago, Dallas, Los Angeles, Seattle",5,641269.0,11415.0,1561.0,654245.0,1.0,3,3
+"Atlanta, Dallas, Los Angeles, Seattle",4,649406.0,11073.0,1576.0,662055.0,0.0,4,4
+"Atlanta, Chicago, Newark, Los Angeles, Seattle",5,659068.0,10838.0,1577.0,671483.0,1.0,5,5
+"Atlanta, Chicago, Los Angeles, Seattle",4,659780.0,10838.0,1564.0,672182.0,1.0,6,6
+"Atlanta, Newark, Los Angeles, Seattle",4,671229.0,10738.0,1575.0,683542.0,1.0,7,7

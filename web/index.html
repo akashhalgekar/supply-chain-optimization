@@ -4,82 +4,333 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tidewell Supply Chain Optimiser</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root { --bg:#f5f7fa; --card:#fff; --ink:#14213d; --muted:#6b7a90; --line:#e1e6ee; --navy:#0b2a4a; --green:#1f8f7a; --red:#c0392b; --amber:#d4900a; --accent:#2b6cb0; }
-  @media (prefers-color-scheme: dark) { :root { --bg:#0e1621; --card:#16212f; --ink:#e8edf4; --muted:#93a1b5; --line:#263446; --accent:#5aa0e6; } }
-  * { box-sizing:border-box } body { margin:0; font:15px/1.45 system-ui,sans-serif; background:var(--bg); color:var(--ink) }
-  header { display:flex; align-items:center; gap:16px; padding:14px 24px; background:var(--navy); color:#fff; flex-wrap:wrap }
-  header h1 { font-size:18px; margin:0 } header span { color:#b9c7d8; font-size:13px }
-  nav { margin-left:auto; display:flex; gap:8px } nav button { background:transparent; border:1px solid #4a6485; color:#fff; padding:6px 14px; border-radius:6px; cursor:pointer }
-  nav button.on { background:#fff; color:var(--navy) }
-  main { display:grid; grid-template-columns:270px 1fr; gap:20px; padding:20px 24px; max-width:1400px; margin:auto }
-  aside, .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px }
-  aside h2 { font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin:0 0 12px }
-  label { display:flex; justify-content:space-between; font-size:13px; margin-top:14px } label b { font-variant-numeric:tabular-nums }
-  input[type=range] { width:100%; accent-color:var(--navy) }
-  button.go { width:100%; margin-top:20px; padding:10px; background:var(--navy); color:#fff; border:0; border-radius:6px; font-weight:600; cursor:pointer }
-  button.go:disabled { opacity:.5 } .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:16px }
-  .kpi .v { font-size:24px; font-weight:700; font-variant-numeric:tabular-nums } .kpi .l { color:var(--muted); font-size:12px }
-  .grid { display:grid; grid-template-columns:1.5fr 1fr; gap:16px } .card h3 { margin:0 0 10px; font-size:14px }
-  .bar { display:grid; grid-template-columns:130px 1fr 70px; gap:8px; align-items:center; font-size:13px; margin:6px 0 }
-  .bar i { display:block; height:10px; background:var(--accent); border-radius:5px } .bar span:last-child { text-align:right; font-variant-numeric:tabular-nums }
-  img { max-width:100%; border-radius:6px } p.note { color:var(--muted); font-size:13px; margin:6px 0 }
-  table { width:100%; border-collapse:collapse; font-size:13px } td,th { text-align:left; padding:5px 6px; border-bottom:1px solid var(--line) } td.n,th.n { text-align:right }
-  .warn { background:#fdecea; color:#8a1f12; padding:14px; border-radius:8px } [hidden]{display:none!important}
-  @media (max-width:860px) { main { grid-template-columns:1fr } .grid { grid-template-columns:1fr } }
+  :root {
+    --glass:#eef3f2; --panel:#fbfdfc; --slate:#1c2a33; --muted:#5b6b73; --rule:#d5e0de;
+    --tide:#0e6b73; --tide-soft:#d7ebea; --rust:#a94a24; --rust-soft:#f6e3da; --sand:#c99a3c;
+    --display:"Archivo", "Arial Narrow", sans-serif; --body:"Public Sans", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --glass:#10191d; --panel:#16232a; --slate:#e4eceb; --muted:#93a5ab; --rule:#29393f;
+            --tide:#4fb3b8; --tide-soft:#173a3d; --rust:#e08a63; --rust-soft:#3d241a; --sand:#d9b064; }
+  }
+  * { box-sizing:border-box }
+  body { margin:0; background:var(--glass); color:var(--slate); font:15px/1.55 var(--body); -webkit-font-smoothing:antialiased }
+  button, input { font:inherit; color:inherit }
+  :focus-visible { outline:3px solid var(--tide); outline-offset:2px; border-radius:4px }
+  [hidden] { display:none !important }
+  .num { font-variant-numeric:tabular-nums }
+
+  /* top bar */
+  .top { display:flex; align-items:center; gap:24px; padding:18px 32px; border-bottom:1px solid var(--rule); flex-wrap:wrap }
+  .brand { font-family:var(--display); font-stretch:80%; font-weight:800; font-size:22px; letter-spacing:.01em; margin:0 }
+  .brand small { font-weight:500; font-stretch:100%; font-family:var(--body); font-size:13px; color:var(--muted); margin-left:10px; letter-spacing:0 }
+  .tabs { margin-left:auto; display:flex; gap:4px; background:var(--panel); border:1px solid var(--rule); border-radius:999px; padding:4px }
+  .tabs button { border:0; background:none; padding:7px 16px; border-radius:999px; cursor:pointer; font-weight:600; font-size:14px; color:var(--muted) }
+  .tabs button[aria-selected=true] { background:var(--slate); color:var(--glass) }
+
+  .wrap { max-width:1320px; margin:0 auto; padding:28px 32px 48px }
+
+  /* verdict: the one bold element */
+  .verdict { margin:0 0 6px; font-family:var(--display); font-stretch:78%; font-weight:700; font-size:clamp(28px, 3.6vw, 46px); line-height:1.08; max-width:26ch; letter-spacing:-.005em }
+  .verdict-sub { margin:0 0 26px; color:var(--muted); max-width:70ch; font-size:16px }
+  .status { display:inline-flex; align-items:center; gap:8px; font-size:13px; color:var(--muted); min-height:20px }
+  .status i { width:8px; height:8px; border-radius:50%; background:var(--tide) }
+  .status.busy i { animation:pulse 1s ease-in-out infinite }
+  @keyframes pulse { 50% { opacity:.25 } }
+  @media (prefers-reduced-motion: reduce) { .status.busy i { animation:none } }
+
+  /* scenarios */
+  .scenarios { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 24px; align-items:center }
+  .scenarios span { font-size:13px; color:var(--muted); margin-right:4px }
+  .chip { border:1px solid var(--rule); background:var(--panel); border-radius:999px; padding:7px 14px; cursor:pointer; font-size:14px; font-weight:500 }
+  .chip:hover { border-color:var(--tide) }
+  .chip[aria-pressed=true] { background:var(--tide); border-color:var(--tide); color:#fff }
+
+  /* metrics band: one strip, not six cards */
+  .band { display:grid; grid-template-columns:repeat(6, 1fr); background:var(--panel); border:1px solid var(--rule); border-radius:14px; margin-bottom:24px }
+  .metric { padding:16px 18px; border-left:1px solid var(--rule) }
+  .metric:first-child { border-left:0 }
+  .metric .v { font-family:var(--display); font-stretch:85%; font-weight:700; font-size:26px; line-height:1.1 }
+  .metric .l { font-size:13px; color:var(--muted); margin-top:2px }
+  .delta { display:inline-block; font-size:12.5px; font-weight:600; margin-top:6px; padding:1px 8px; border-radius:999px }
+  .delta.good { background:var(--tide-soft); color:var(--tide) }
+  .delta.bad { background:var(--rust-soft); color:var(--rust) }
+  .delta.same { color:var(--muted); padding-left:0 }
+
+  /* main layout */
+  .layout { display:grid; grid-template-columns:320px 1fr; gap:28px; align-items:start }
+  .controls { position:sticky; top:16px; background:var(--panel); border:1px solid var(--rule); border-radius:14px; padding:6px 20px 20px }
+  .group { padding-top:14px }
+  .group + .group { border-top:1px solid var(--rule); margin-top:16px }
+  .group h3 { font-family:var(--display); font-stretch:85%; font-size:16px; font-weight:700; margin:0 0 4px }
+  .dial { margin-top:14px }
+  .dial label { display:flex; justify-content:space-between; align-items:baseline; font-weight:600; font-size:14px }
+  .dial label b { font-weight:600; color:var(--tide) }
+  .dial p { margin:2px 0 6px; font-size:12.5px; color:var(--muted); line-height:1.4 }
+  input[type=range] { width:100%; accent-color:var(--tide); margin:0 }
+  .reset { margin-top:18px; width:100%; border:1px solid var(--rule); background:none; padding:9px; border-radius:10px; cursor:pointer; font-weight:600 }
+  .reset:hover { border-color:var(--slate) }
+
+  .results { display:grid; gap:24px }
+  .panel { background:var(--panel); border:1px solid var(--rule); border-radius:14px; padding:20px 22px }
+  .panel h2 { font-family:var(--display); font-stretch:85%; font-size:19px; font-weight:700; margin:0 0 4px }
+  .panel .lede { margin:0 0 14px; color:var(--muted); font-size:14px; max-width:68ch }
+  .map img { width:100%; border-radius:8px; display:block }
+  .dcs { display:flex; flex-wrap:wrap; gap:6px; margin:0 0 12px }
+  .dcs li { list-style:none; font-size:13px; padding:3px 10px; border-radius:999px; background:var(--tide-soft); color:var(--tide); font-weight:600 }
+  .dcs li.off { background:none; border:1px dashed var(--muted); color:var(--muted); text-decoration:line-through }
+  .dcs { padding:0 }
+
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:24px }
+
+  /* bars */
+  .rows { display:grid; gap:10px }
+  .row { display:grid; grid-template-columns:150px 1fr 90px; gap:12px; align-items:center; font-size:14px }
+  .row .track { position:relative; height:12px; background:var(--glass); border-radius:6px }
+  .row .fill { position:absolute; inset:0 auto 0 0; background:var(--tide); border-radius:6px }
+  .row .fill.hot { background:var(--rust) }
+  .row .limit { position:absolute; top:-4px; bottom:-4px; width:2px; background:var(--slate) }
+  .row .val { text-align:right; font-weight:600 }
+  .row.with-delta { grid-template-columns:150px 1fr 84px 76px }
+  .row .dcell { text-align:right } .row .dcell .delta { margin-top:0 }
+  .foot { margin:14px 0 0; font-size:13px; color:var(--muted) }
+
+  .warn { background:var(--rust-soft); color:var(--rust); border-radius:12px; padding:14px 18px; font-weight:500; margin-bottom:20px }
+  .stale { opacity:.45; transition:opacity .2s }
+
+  /* pipeline tab */
+  .pipe { display:grid; gap:24px }
+  table { width:100%; border-collapse:collapse; font-size:14px }
+  th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--rule); vertical-align:top }
+  th { font-weight:600; color:var(--muted); font-size:13px }
+  td.n, th.n { text-align:right }
+
+  @media (max-width:1100px) { .band { grid-template-columns:repeat(3,1fr) } .metric:nth-child(4) { border-left:0 } .metric:nth-child(n+4) { border-top:1px solid var(--rule) } }
+  @media (max-width:900px) { .layout, .two { grid-template-columns:1fr } .controls { position:static } }
+  @media (max-width:560px) {
+    .top, .wrap { padding-left:16px; padding-right:16px }
+    .band { grid-template-columns:1fr 1fr } .metric { border-left:0 !important; border-top:1px solid var(--rule) } .metric:nth-child(-n+2) { border-top:0 }
+    .row, .row.with-delta { grid-template-columns:100px 1fr 76px } .row .dcell { grid-column:3; margin-top:-6px }
+  }
 </style>
 </head>
 <body>
-<header><h1>Tidewell Supply Chain Optimiser</h1><span id="sub">network design, production planning and safety stock in one chain</span>
-  <nav><button id="t1" class="on">Optimise</button><button id="t2">Data pipeline</button></nav></header>
-<main id="opt">
-  <aside><h2>Dials</h2><div id="dials"></div><button class="go" id="go">Re-optimise the chain</button>
-    <p class="note">Each run solves the whole chain. It takes a few seconds.</p></aside>
-  <section id="out"><div class="card">Loading…</div></section>
-</main>
-<main id="pipe" hidden style="grid-template-columns:1fr">
-  <div class="card"><h3>How the data reaches the model</h3><img id="flow" alt="flowchart"></div>
-  <div class="card"><h3>What the cleaning removed</h3><table id="log"></table></div>
-</main>
+<header class="top">
+  <h1 class="brand">Tidewell<small>Supply chain optimiser for a US drinks company</small></h1>
+  <nav class="tabs" role="tablist">
+    <button role="tab" id="t1" aria-selected="true">Plan the network</button>
+    <button role="tab" id="t2" aria-selected="false">How the data was cleaned</button>
+  </nav>
+</header>
+
+<div class="wrap" id="opt">
+  <p class="verdict" id="verdict">Working out the cheapest plan…</p>
+  <p class="verdict-sub" id="verdictSub">Each answer solves the whole chain: which warehouses to run, when each plant produces, and how much safety stock each warehouse holds.</p>
+
+  <div class="scenarios" role="group" aria-label="Scenarios">
+    <span>Try a scenario:</span>
+    <button class="chip" data-s="base" aria-pressed="true">Base plan</button>
+    <button class="chip" data-s="surge" aria-pressed="false">Demand up 20%</button>
+    <button class="chip" data-s="freight" aria-pressed="false">Freight up 50%</button>
+    <button class="chip" data-s="late" aria-pressed="false">Suppliers twice as slow</button>
+    <button class="chip" data-s="service" aria-pressed="false">99% service level</button>
+    <button class="chip" data-s="cheapdc" aria-pressed="false">Warehouse rent halved</button>
+  </div>
+
+  <div id="warn" class="warn" role="alert" hidden></div>
+  <div class="band" id="band" aria-live="polite"></div>
+
+  <div class="layout">
+    <aside class="controls" aria-label="What if">
+      <div id="dials"></div>
+      <button class="reset" id="reset">Reset to base plan</button>
+    </aside>
+
+    <section class="results" id="results">
+      <div class="panel map">
+        <h2 id="mapTitle">Network</h2>
+        <p class="lede">Squares are plants, circles are warehouses (DCs), dots are customer markets. A hollow circle is a warehouse the plan closes.</p>
+        <ul class="dcs" id="dcs"></ul>
+        <img id="map" alt="Map of plants, open warehouses and the markets each one serves">
+      </div>
+      <div class="two">
+        <div class="panel">
+          <h2>Where the money goes each week</h2>
+          <p class="lede">Production is most of the cost. Moving a dial shows which line it actually moves.</p>
+          <div class="rows" id="costs"></div>
+        </div>
+        <div class="panel">
+          <h2>Plant load in the busiest week</h2>
+          <p class="lede" id="plantLede">The black line is the planning limit. Plants are never planned past it, so there is room for breakdowns.</p>
+          <div class="rows" id="plants"></div>
+          <p class="foot" id="runs"></p>
+        </div>
+      </div>
+      <div class="panel">
+        <h2 id="ssTitle">Safety stock</h2>
+        <p class="lede" id="ssLede"></p>
+        <div class="rows" id="stock"></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="wrap pipe" id="pipe" hidden>
+  <div>
+    <p class="verdict">From messy exports to one clean model.</p>
+    <p class="verdict-sub">The raw ERP, warehouse and transport files are full of duplicates, cancelled orders and mixed units. Every fix is logged, and the load stops if units in do not equal units out.</p>
+  </div>
+  <div class="panel"><h2>How the data reaches the model</h2><img id="flow" alt="Flowchart from raw system files to the three models" style="width:100%"></div>
+  <div class="panel"><h2>What the cleaning removed</h2><table id="log"></table></div>
+</div>
+
 <script>
 const DIALS = {
-  demand_scale:{l:"Demand",min:.5,max:2,step:.05,f:v=>"x"+(+v).toFixed(2)}, service_level:{l:"Service level",min:.8,max:.99,step:.01,f:v=>Math.round(v*100)+"%"},
-  rate_per_pallet_mile:{l:"Transport rate per pallet-mile",min:.02,max:.2,step:.005,f:v=>"$"+(+v).toFixed(3)}, dc_fixed_scale:{l:"DC fixed cost",min:.5,max:2,step:.05,f:v=>"x"+(+v).toFixed(2)},
-  setup_cost:{l:"Production setup cost",min:200,max:10000,step:100,f:v=>"$"+(+v).toLocaleString()}, lead_time_scale:{l:"Delivery lead times",min:.5,max:3,step:.1,f:v=>"x"+(+v).toFixed(1)}
+  demand_scale: {g:"Demand and service", l:"Customer demand", help:"Scale every market's weekly orders up or down.", min:.5, max:2, step:.05, f:v=>"×"+(+v).toFixed(2)},
+  service_level: {g:"Demand and service", l:"Service level", help:"Share of order cycles served without running out.", min:.8, max:.99, step:.01, f:v=>Math.round(v*100)+"%"},
+  rate_per_pallet_mile: {g:"Costs", l:"Freight rate", help:"Trucking cost to move one pallet one mile.", min:.02, max:.2, step:.005, f:v=>"$"+(+v).toFixed(3)},
+  dc_fixed_scale: {g:"Costs", l:"Warehouse fixed cost", help:"Rent and staff for keeping a warehouse open.", min:.5, max:2, step:.05, f:v=>"×"+(+v).toFixed(2)},
+  setup_cost: {g:"Costs", l:"Production setup cost", help:"Cost of changing a line over to make a batch.", min:200, max:10000, step:100, f:v=>"$"+Math.round(v).toLocaleString()},
+  lead_time_scale: {g:"Suppliers", l:"Delivery lead times", help:"How long trucks take to reach each warehouse.", min:.5, max:3, step:.1, f:v=>"×"+(+v).toFixed(1)}
 };
-const state = {}; const $ = id => document.getElementById(id); const usd = n => "$" + Math.round(n).toLocaleString();
-fetch("/api/defaults").then(r=>r.json()).then(d => { Object.assign(state,d); build(); run(); });
+const SCENARIOS = {
+  base:{}, surge:{demand_scale:1.2}, freight:{rate_per_pallet_mile:.15}, late:{lead_time_scale:2},
+  service:{service_level:.99}, cheapdc:{dc_fixed_scale:.5}
+};
+const $ = id => document.getElementById(id);
+const usd = n => "$" + Math.round(n).toLocaleString();
+let defaults = {}, state = {}, base = null, seq = 0, timer = null;
+
+$("verdictSub").dataset.text = $("verdictSub").textContent;
+fetch("/api/defaults").then(r => r.json()).then(d => { defaults = d; state = {...d}; build(); run(); });
+
 function build() {
-  $("dials").innerHTML = Object.entries(DIALS).map(([k,c]) =>
-    `<label>${c.l}<b id="v_${k}">${c.f(state[k])}</b></label><input type="range" id="r_${k}" min="${c.min}" max="${c.max}" step="${c.step}" value="${state[k]}">`).join("");
-  Object.keys(DIALS).forEach(k => $("r_"+k).oninput = e => { state[k] = +e.target.value; $("v_"+k).textContent = DIALS[k].f(state[k]); });
+  const groups = {};
+  Object.entries(DIALS).forEach(([k,c]) => (groups[c.g] ||= []).push(k));
+  $("dials").innerHTML = Object.entries(groups).map(([g, keys]) => `<div class="group"><h3>${g}</h3>` + keys.map(k => {
+    const c = DIALS[k];
+    return `<div class="dial"><label for="r_${k}">${c.l}<b id="v_${k}" class="num">${c.f(state[k])}</b></label><p id="h_${k}">${c.help}</p>
+      <input type="range" id="r_${k}" aria-describedby="h_${k}" min="${c.min}" max="${c.max}" step="${c.step}" value="${state[k]}"></div>`;
+  }).join("") + `</div>`).join("");
+  Object.keys(DIALS).forEach(k => {
+    $("r_"+k).oninput = e => { state[k] = +e.target.value; $("v_"+k).textContent = DIALS[k].f(state[k]); markScenario(); schedule(); };
+  });
 }
+function setState(s) {
+  state = {...defaults, ...s};
+  Object.keys(DIALS).forEach(k => { $("r_"+k).value = state[k]; $("v_"+k).textContent = DIALS[k].f(state[k]); });
+  markScenario(); run();
+}
+function markScenario() {
+  document.querySelectorAll(".chip").forEach(b => {
+    const s = {...defaults, ...SCENARIOS[b.dataset.s]};
+    b.setAttribute("aria-pressed", Object.keys(DIALS).every(k => Math.abs(s[k] - state[k]) < 1e-9));
+  });
+}
+function schedule() { clearTimeout(timer); timer = setTimeout(run, 450); }
+document.querySelectorAll(".chip").forEach(b => b.onclick = () => setState(SCENARIOS[b.dataset.s]));
+$("reset").onclick = () => setState({});
+
+function busy(on) {
+  $("results").classList.toggle("stale", on); $("band").classList.toggle("stale", on);
+  if (on) $("verdictSub").innerHTML = `<span class="status busy"><i></i>Re-solving the chain…</span>`;
+  else $("verdictSub").textContent = $("verdictSub").dataset.text;
+}
+
 async function run() {
-  $("go").disabled = true; $("go").textContent = "Optimising…";
-  const d = await (await fetch("/api/run", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(state)})).json();
-  $("go").disabled = false; $("go").textContent = "Re-optimise the chain";
-  if (!d.feasible) { $("out").innerHTML = `<div class="warn"><b>No feasible plan.</b> ${d.message}</div>`; return; }
-  const k = d.kpi, mx = Math.max(...d.cost_breakdown.map(b=>b.value));
-  $("out").innerHTML = `
-  <div class="kpis">
-    <div class="card kpi"><div class="v">${usd(k.weekly_cost)}</div><div class="l">cost per week</div></div>
-    <div class="card kpi"><div class="v">${usd(k.cost_per_pallet)}</div><div class="l">cost per pallet</div></div>
-    <div class="card kpi"><div class="v">${Math.round(k.co2_tonnes_year).toLocaleString()} t</div><div class="l">CO2 per year</div></div>
-    <div class="card kpi"><div class="v">${Math.round(k.service_level*100)}%</div><div class="l">cycle service level</div></div>
-    <div class="card kpi"><div class="v">${(k.fill_rate*100).toFixed(1)}%</div><div class="l">fill rate</div></div>
-    <div class="card kpi"><div class="v">${Math.round(k.next_day_share*100)}%</div><div class="l">volume within 600 miles</div></div></div>
-  <div class="grid"><div class="card"><h3>Network: ${d.open_dcs.length} of ${d.open_dcs.length+d.closed_dcs.length} DCs open (${d.open_dcs.join(", ")})</h3><img src="${d.map}" alt="network map"></div>
-  <div><div class="card"><h3>Weekly cost breakdown</h3>${d.cost_breakdown.map(b=>`<div class="bar"><span>${b.label}</span><span><i style="width:${100*b.value/mx}%"></i></span><span>${usd(b.value)}</span></div>`).join("")}</div>
-  <div class="card" style="margin-top:16px"><h3>Plants, peak-week load</h3><table>${d.plants.map(p=>`<tr><td>${p.plant}</td><td class="n">${Math.round(p.peak_week_load*100)}%</td></tr>`).join("")}</table>
-    <p class="note">${d.production.runs} production runs in 12 weeks instead of ${d.production.runs_if_weekly}; batching saves ${usd(d.production.saved_vs_weekly)} over the 12 weeks.</p></div>
-  <div class="card" style="margin-top:16px"><h3>Safety stock: ${d.stock.safety_stock.toLocaleString()} pallets</h3><table>${d.stock.by_dc.map(s=>`<tr><td>${s.dc}</td><td class="n">${s.pallets.toLocaleString()}</td></tr>`).join("")}</table>
-    <p class="note">Counting demand swings alone would give ${d.stock.if_demand_only.toLocaleString()} pallets. Late deliveries add the rest.</p></div></div></div>`;
+  const id = ++seq; busy(true);
+  let d;
+  try {
+    const res = await fetch("/api/run", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(state)});
+    d = res.ok ? await res.json()
+      : {feasible:false, invalid:true, message: res.status === 422 ? "One of the dial values is outside the range the model accepts. Reset to base plan to continue." : `The optimiser returned an error (${res.status}). Reset to base plan to try again.`};
+  } catch (e) { d = {feasible:false, invalid:true, message:"The optimiser did not respond. Check the server is running, then move a dial to try again."}; }
+  if (id !== seq) return;                      // a newer request is on its way; ignore this one
+  if (!base && d.feasible) base = d;
+  busy(false);
+  if (!d.feasible) {
+    $("warn").hidden = false;
+    const advice = d.invalid ? "" : " Lower demand or reset to see a plan again.";
+    const last = base ? " The figures below are from the last plan that worked." : "";
+    $("warn").textContent = (d.message || "No plan meets demand with these settings.") + advice + last;
+    $("results").classList.add("stale"); $("band").classList.add("stale");
+    return;
+  }
+  $("warn").hidden = true;
+  render(d);
 }
-$("go").onclick = run;
+
+function delta(now, was, {better="down", fmt=usd, pct=false} = {}) {
+  if (!base || isBase()) return "";
+  const diff = now - was;
+  if (Math.abs(diff) < (pct ? 0.0005 : 0.5)) return `<span class="delta same">same as base</span>`;
+  const good = better === "down" ? diff < 0 : diff > 0;
+  const txt = pct ? (diff > 0 ? "+" : "−") + Math.abs(diff*100).toFixed(1) + " pts" : (diff > 0 ? "+" : "−") + fmt(Math.abs(diff)).replace("-", "");
+  return `<span class="delta ${good ? "good" : "bad"}">${txt}</span>`;
+}
+
+function render(d) {
+  const k = d.kpi, b = base.kpi, total = d.open_dcs.length + d.closed_dcs.length;
+  const diff = k.weekly_cost - b.weekly_cost;
+  $("verdict").textContent = d.closed_dcs.length
+    ? `The cheapest plan runs ${d.open_dcs.length} of ${total} warehouses and closes ${d.closed_dcs.join(" and ")}.`
+    : `The cheapest plan keeps all ${total} warehouses open.`;
+  const sub = isBase()
+    ? `The cheapest plan costs ${usd(k.weekly_cost)} a week (${usd(k.cost_per_pallet)} a pallet) and fills ${(k.fill_rate*100).toFixed(1)}% of orders straight from stock. Pick a scenario or move a dial to see what changes.`
+    : `In this scenario the plan costs ${usd(k.weekly_cost)} a week, ${Math.abs(diff) < 1 ? "the same as" : usd(Math.abs(diff)) + (diff > 0 ? " more than" : " less than")} the base plan. ${dcChange(d)}`;
+  $("verdictSub").textContent = sub; $("verdictSub").dataset.text = sub;
+
+  $("band").innerHTML = [
+    [usd(k.weekly_cost), "cost per week", delta(k.weekly_cost, b.weekly_cost)],
+    [usd(k.cost_per_pallet), "cost per pallet", delta(k.cost_per_pallet, b.cost_per_pallet, {fmt:n => "$" + n.toFixed(2)})],
+    [(k.fill_rate*100).toFixed(1) + "%", "orders filled from stock", delta(k.fill_rate, b.fill_rate, {better:"up", pct:true})],
+    [Math.round(k.next_day_share*100) + "%", "volume within next-day reach", delta(k.next_day_share, b.next_day_share, {better:"up", pct:true})],
+    [d.stock.safety_stock.toLocaleString(), "pallets of safety stock", delta(d.stock.safety_stock, base.stock.safety_stock, {fmt:n => Math.round(n).toLocaleString()})],
+    [Math.round(k.co2_tonnes_year).toLocaleString() + " t", "CO2 a year", delta(k.co2_tonnes_year, b.co2_tonnes_year, {fmt:n => Math.round(n).toLocaleString() + " t"})]
+  ].map(([v,l,dl]) => `<div class="metric"><div class="v num">${v}</div><div class="l">${l}</div>${dl}</div>`).join("");
+
+  $("mapTitle").textContent = `${d.open_dcs.length} of ${total} warehouses open`;
+  $("dcs").innerHTML = d.open_dcs.map(c => `<li>${c}</li>`).join("") + d.closed_dcs.map(c => `<li class="off">${c}</li>`).join("");
+  $("map").src = d.map;
+
+  const mx = Math.max(...d.cost_breakdown.map(x => x.value));
+  const bmap = Object.fromEntries(base.cost_breakdown.map(x => [x.label, x.value]));
+  $("costs").innerHTML = d.cost_breakdown.map(x => `<div class="row ${isBase() ? "" : "with-delta"}"><span>${x.label}</span><span class="track"><span class="fill" style="width:${100*x.value/mx}%"></span></span><span class="val num">${usd(x.value)}</span>${isBase() ? "" : `<span class="num dcell">${delta(x.value, bmap[x.label] ?? x.value)}</span>`}</div>`).join("");
+
+  const lim = d.planning_limit;
+  $("plantLede").textContent = `The black line is the ${Math.round(lim*100)}% planning limit. Plants are never planned past it, so there is room for breakdowns.`;
+  $("plants").innerHTML = d.plants.map(p => {
+    const v = p.busiest_production_week;
+    return `<div class="row"><span>${p.plant}</span><span class="track"><span class="fill ${v > lim + .001 ? "hot" : ""}" style="width:${Math.min(100, v*100)}%"></span><span class="limit" style="left:${lim*100}%"></span></span><span class="val num">${Math.round(v*100)}%</span></div>`;
+  }).join("");
+  const runDiff = d.production.runs - base.production.runs;
+  $("runs").textContent = `Batching cuts production runs from ${d.production.runs_if_weekly} to ${d.production.runs} over 12 weeks and saves ${usd(d.production.saved_vs_weekly)} against making every item every week.` + (isBase() || !runDiff ? "" : ` That is ${Math.abs(runDiff)} ${runDiff > 0 ? "more" : "fewer"} runs than the base plan.`);
+
+  const smx = Math.max(...d.stock.by_dc.map(s => s.pallets));
+  const lateShare = d.stock.safety_stock > 0 ? 1 - d.stock.if_demand_only / d.stock.safety_stock : 0;
+  $("ssTitle").textContent = `Safety stock: ${d.stock.safety_stock.toLocaleString()} pallets`;
+  $("ssLede").textContent = `Demand swings alone would need ${d.stock.if_demand_only.toLocaleString()} pallets. The other ${Math.round(lateShare*100)}% is there because deliveries arrive late${lateShare > .5 ? ", so late deliveries, not demand, drive most of the buffer" : ""}. That split depends on the delivery spread assumed in this simulated company.`;
+  $("stock").innerHTML = d.stock.by_dc.map(s => `<div class="row"><span>${s.dc}</span><span class="track"><span class="fill" style="width:${100*s.pallets/smx}%"></span></span><span class="val num">${s.pallets.toLocaleString()}</span></div>`).join("");
+}
+function isBase() { return Object.keys(DIALS).every(k => Math.abs(defaults[k] - state[k]) < 1e-9); }
+function dcChange(d) {
+  const opened = d.open_dcs.filter(c => !base.open_dcs.includes(c)), closed = base.open_dcs.filter(c => !d.open_dcs.includes(c));
+  if (!opened.length && !closed.length) return "The warehouse choice stays the same.";
+  return [opened.length && `${opened.join(" and ")} ${opened.length > 1 ? "reopen" : "reopens"}`, closed.length && `${closed.join(" and ")} ${closed.length > 1 ? "close" : "closes"}`].filter(Boolean).join(" and ") + " compared with the base plan.";
+}
+
 let loaded = false;
-function tab(n) { $("opt").hidden = n==2; $("pipe").hidden = n==1; $("t1").className = n==1?"on":""; $("t2").className = n==2?"on":"";
-  if (n==2 && !loaded) { loaded = true; fetch("/api/lineage").then(r=>r.json()).then(d => { $("flow").src = d.flowchart;
-    $("log").innerHTML = "<tr><th>Source</th><th>Step</th><th class='n'>Rows</th><th>Note</th></tr>" + d.quality_log.filter(q=>q.rows_affected>0).map(q=>`<tr><td>${q.source}</td><td>${q.step}</td><td class="n">${q.rows_affected}</td><td>${q.note}</td></tr>`).join(""); }); } }
+function tab(n) {
+  $("opt").hidden = n == 2; $("pipe").hidden = n == 1;
+  $("t1").setAttribute("aria-selected", n == 1); $("t2").setAttribute("aria-selected", n == 2);
+  if (n == 2 && !loaded) { loaded = true; fetch("/api/lineage").then(r => r.json()).then(d => { $("flow").src = d.flowchart;
+    $("log").innerHTML = "<tr><th>Source</th><th>Step</th><th class='n'>Rows</th><th>Note</th></tr>" + d.quality_log.filter(q => q.rows_affected > 0).map(q => `<tr><td>${q.source}</td><td>${q.step}</td><td class="n num">${q.rows_affected.toLocaleString()}</td><td>${q.note}</td></tr>`).join(""); }); }
+}
 $("t1").onclick = () => tab(1); $("t2").onclick = () => tab(2);
 </script>
-</body></html>
+</body>
+</html>
