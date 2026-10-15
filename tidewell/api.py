@@ -1,14 +1,17 @@
 """Small web API and dashboard.   uvicorn tidewell.api:app --port 8000   then open http://localhost:8000"""
 import base64, io, os
-from fastapi import FastAPI
+from typing import Any, Dict
+from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel, Field
-from . import store, chain, plots, flow
+from . import store, chain, plots, flow, assistant
 
 app = FastAPI(title="Tidewell supply chain optimiser", version="1.0")
 CO, TABLES = store.build()
 WEB = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "web")
 _cache = {}
+TOOLBOX = assistant.Toolbox(CO)       # the AI analyst's tools; Claude itself runs in the visitor's browser on their own key
+LIMITER = assistant.Limiter()
 
 
 def _default(name, **bounds):
@@ -82,3 +85,35 @@ def lineage():
         _cache["lineage"] = {"flowchart": _png(lambda b: flow.draw(flow.facts_from(CO, TABLES, base), b)),
                              "quality_log": TABLES["data_quality_log"][["source", "step", "rows_affected", "note"]].to_dict(orient="records")}
     return _cache["lineage"]
+
+
+class ToolCall(BaseModel):
+    name: str = Field(max_length=64)
+    input: Dict[str, Any] = Field(default_factory=dict)
+
+
+@app.get("/api/advisor")
+def advisor():
+    """What the browser needs to talk to Claude: the system prompt, the tools, model choices and limits.
+    No key lives here. The visitor's browser sends their own key straight to Anthropic."""
+    return {"system": assistant.SYSTEM, "tools": TOOLBOX.tools, "models": [{"id": m, "label": l} for m, l in assistant.MODELS],
+            "limits": assistant.LIMITS, "contact": assistant.CONTACT}
+
+
+@app.post("/api/advisor/tool")
+def advisor_tool(call: ToolCall, request: Request):
+    """Run one tool call that Claude asked for. Pure computation: no API key, no tokens, nothing stored."""
+    # The first X-Forwarded-For entry is the visitor as the host's proxy reports it. A visitor can fake it, so the
+    # site-wide hourly cap is what actually bounds the CPU.
+    forwarded = request.headers.get("x-forwarded-for", "")
+    who = forwarded.split(",")[0].strip() or (request.client.host if request.client else "unknown")
+    ok, message = LIMITER.allow(who)
+    if not ok:
+        return JSONResponse(status_code=429, content={"error": message})
+    try:
+        out, receipt = TOOLBOX.call(call.name, call.input)
+        return {"content": assistant.as_text(out), "is_error": False, "receipt": receipt}
+    except ValueError as e:
+        return {"content": str(e), "is_error": True, "receipt": None}
+    except Exception:                                        # solver or data failure: tell the model, keep the server up
+        return {"content": "The calculation could not run with these inputs. Try different settings.", "is_error": True, "receipt": None}

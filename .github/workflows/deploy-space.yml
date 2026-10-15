@@ -1,0 +1,52 @@
+name: deploy to Hugging Face
+
+# Publishes the live dashboard to a Hugging Face Space whenever main changes.
+# Needs one repository secret: HF_TOKEN (a Hugging Face write token). No Anthropic key is ever deployed: the AI analyst
+# runs on each visitor's own key, in their browser, so the site costs the owner nothing in tokens.
+# Without HF_TOKEN this job does nothing, so forks and early setups stay green.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      SPACE_NAME: tidewell
+    steps:
+      - uses: actions/checkout@v4
+        if: env.HF_TOKEN != ''
+      - uses: actions/setup-python@v5
+        if: env.HF_TOKEN != ''
+        with:
+          python-version: "3.12"
+      - name: Publish the Space
+        if: env.HF_TOKEN != ''
+        run: |
+          pip install -q "huggingface_hub>=0.24"
+          python - <<'PY'
+          import os
+          from huggingface_hub import HfApi
+          api = HfApi(token=os.environ["HF_TOKEN"])
+          repo = f"{api.whoami()['name']}/{os.environ['SPACE_NAME']}"
+          api.create_repo(repo, repo_type="space", space_sdk="docker", exist_ok=True)
+          import shutil, tempfile
+          stage = tempfile.mkdtemp()
+          for d in ("tidewell", "web", "data"):
+              shutil.copytree(d, f"{stage}/{d}", ignore=shutil.ignore_patterns("__pycache__"))
+          for f in ("requirements.txt", "Dockerfile", ".dockerignore"):
+              shutil.copy(f, stage)
+          shutil.copy("space/README.md", f"{stage}/README.md")
+          api.upload_folder(repo_id=repo, repo_type="space", folder_path=stage,
+                            delete_patterns=["tidewell/**", "web/**", "data/**"],
+                            commit_message=f"Deploy {os.environ.get('GITHUB_SHA', '')[:7]} from GitHub")
+          user, name = repo.split("/")
+          print(f"Live at https://huggingface.co/spaces/{repo}  (app: https://{user.lower()}-{name}.hf.space)")
+          PY
+      - name: Skipped
+        if: env.HF_TOKEN == ''
+        run: echo "HF_TOKEN secret not set, so nothing was deployed."

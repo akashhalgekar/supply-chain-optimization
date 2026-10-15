@@ -19,7 +19,7 @@
   }
   * { box-sizing:border-box }
   body { margin:0; background:var(--glass); color:var(--slate); font:15px/1.55 var(--body); -webkit-font-smoothing:antialiased }
-  button, input { font:inherit; color:inherit }
+  button, input, textarea { font:inherit; color:inherit }
   :focus-visible { outline:3px solid var(--tide); outline-offset:2px; border-radius:4px }
   [hidden] { display:none !important }
   .num { font-variant-numeric:tabular-nums }
@@ -116,6 +116,52 @@
     .band { grid-template-columns:1fr 1fr } .metric { border-left:0 !important; border-top:1px solid var(--rule) } .metric:nth-child(-n+2) { border-top:0 }
     .row, .row.with-delta { grid-template-columns:100px 1fr 76px } .row .dcell { grid-column:3; margin-top:-6px }
   }
+
+  /* Ask the model */
+  .ask-open { margin-left:12px; border:1px solid var(--tide); background:var(--tide); color:#fff; border-radius:999px; padding:8px 16px; font-weight:600; font-size:14px; cursor:pointer }
+  .ask-open:hover { filter:brightness(1.08) }
+  .drawer { position:fixed; top:0; right:0; bottom:0; width:min(440px, 100vw); background:var(--panel); border-left:1px solid var(--rule); box-shadow:-12px 0 32px rgba(20,30,35,.12);
+            display:flex; flex-direction:column; z-index:20; transform:translateX(100%); transition:transform .22s ease }
+  .drawer.open { transform:none }
+  @media (prefers-reduced-motion: reduce) { .drawer { transition:none } }
+  .drawer header { padding:18px 20px 12px; border-bottom:1px solid var(--rule) }
+  .drawer header h2 { font-family:var(--display); font-stretch:85%; font-size:20px; margin:0; display:flex; justify-content:space-between; align-items:center }
+  .drawer header p { margin:4px 0 0; font-size:13px; color:var(--muted) }
+  .drawer .close { border:0; background:none; font-size:22px; line-height:1; cursor:pointer; color:var(--muted); padding:4px 8px }
+  .thread { flex:1; overflow-y:auto; padding:16px 20px; display:flex; flex-direction:column; gap:14px }
+  .suggest { display:flex; flex-wrap:wrap; gap:8px }
+  .suggest button { border:1px solid var(--rule); background:var(--glass); border-radius:999px; padding:7px 12px; font-size:13.5px; cursor:pointer; text-align:left }
+  .suggest button:hover { border-color:var(--tide) }
+  .msg { max-width:92%; font-size:14.5px; line-height:1.55 }
+  .msg.you { align-self:flex-end; background:var(--slate); color:var(--glass); padding:9px 13px; border-radius:14px 14px 4px 14px }
+  .msg.bot { align-self:flex-start }
+  .msg.bot .body { background:var(--glass); padding:11px 14px; border-radius:14px 14px 14px 4px }
+  .msg.err .body { background:var(--rust-soft); color:var(--rust) }
+  .receipt { margin-top:8px; font-size:12.5px; color:var(--muted); border-left:3px solid var(--tide); padding:4px 0 4px 10px }
+  .receipt b { color:var(--slate); font-weight:600 }
+  .receipt button { margin-top:6px; border:1px solid var(--tide); color:var(--tide); background:none; border-radius:999px; padding:3px 10px; font-size:12.5px; font-weight:600; cursor:pointer }
+  .typing { color:var(--muted); font-size:13.5px }
+  .composer { border-top:1px solid var(--rule); padding:12px 16px 16px; display:flex; gap:8px; align-items:flex-end }
+  .composer textarea { flex:1; resize:none; border:1px solid var(--rule); border-radius:12px; padding:10px 12px; background:var(--glass); min-height:44px; max-height:120px; font-size:14.5px }
+  .composer button { border:0; background:var(--tide); color:#fff; border-radius:12px; padding:11px 16px; font-weight:600; cursor:pointer }
+  .composer button:disabled { opacity:.5; cursor:default }
+  .ask-foot { font-size:12px; color:var(--muted); padding:0 16px 14px; line-height:1.5 }
+  .ask-foot a { color:var(--muted) }
+  .ask-foot a:hover { color:var(--tide) }
+  .linkish { border:0; background:none; padding:0; color:var(--muted); text-decoration:underline; cursor:pointer; font-size:12px }
+  .setup { padding:18px 20px; display:flex; flex-direction:column; gap:14px; overflow-y:auto; flex:1 }
+  .setup .lead { margin:0; font-size:14.5px }
+  .setup label { font-size:13px; font-weight:600; display:block; margin-bottom:4px }
+  .setup input, .setup select { width:100%; border:1px solid var(--rule); border-radius:10px; padding:10px 12px; background:var(--glass); font-size:14.5px }
+  .setup .go { border:0; background:var(--tide); color:#fff; border-radius:12px; padding:11px 16px; font-weight:600; cursor:pointer; font-size:15px }
+  .setup .fine { font-size:12.5px; color:var(--muted); margin:0; line-height:1.5 }
+  .setup .fine a { color:var(--tide) }
+  .setup .bad { color:var(--rust); font-size:13px; margin:0 }
+  .keybox { border:1px solid var(--rule); border-radius:12px; padding:12px 14px; background:var(--glass); display:flex; flex-direction:column; gap:10px }
+  .suggest h3 { width:100%; margin:4px 0 0; font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:600 }
+  .msg.bot table { border-collapse:collapse; font-size:13px; margin:4px 0 8px }
+  .msg.bot td, .msg.bot th { border-bottom:1px solid var(--rule); padding:3px 8px 3px 0; text-align:left }
+  .msg.bot ol, .msg.bot ul { margin:0 0 8px; padding-left:20px }
 </style>
 </head>
 <body>
@@ -125,6 +171,7 @@
     <button role="tab" id="t1" aria-selected="true">Plan the network</button>
     <button role="tab" id="t2" aria-selected="false">How the data was cleaned</button>
   </nav>
+  <button class="ask-open" id="askOpen" aria-controls="drawer" aria-expanded="false">Ask the analyst</button>
 </header>
 
 <div class="wrap" id="opt">
@@ -187,6 +234,108 @@
   <div class="panel"><h2>How the data reaches the model</h2><img id="flow" alt="Flowchart from raw system files to the three models" style="width:100%"></div>
   <div class="panel"><h2>What the cleaning removed</h2><table id="log"></table></div>
 </div>
+
+<aside class="drawer" id="drawer" aria-label="Ask the analyst" aria-hidden="true">
+  <header>
+    <h2>Ask the analyst <button class="close" id="askClose" aria-label="Close">×</button></h2>
+    <p>Describe a stock, batching or warehouse problem from your own business, or ask a what-if about Tidewell. Claude works it out with the same models behind this dashboard, so the numbers are calculated, not guessed.</p>
+  </header>
+
+  <form class="setup" id="setup" autocomplete="off">
+    <div class="keybox">
+      <div>
+        <label for="apiKey">Your Anthropic API key</label>
+        <input id="apiKey" type="password" placeholder="sk-ant-..." spellcheck="false" autocomplete="off">
+      </div>
+      <div>
+        <label for="model">Model</label>
+        <select id="model"></select>
+      </div>
+      <p class="bad" id="keyErr" hidden></p>
+      <button class="go" type="submit">Start</button>
+    </div>
+    <p class="fine"><b>Your key stays with you.</b> It is kept in this browser tab only and sent straight to Anthropic, never to this site. Closing the tab forgets it. Usage is billed to your own Anthropic account, usually a few cents a question. No key yet? Create one at <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>.</p>
+    <p class="fine">What you type goes to Anthropic with your key, and the numbers Claude calculates with run on this site's calculators. Nothing is stored.</p>
+    <p class="fine">Use Claude Desktop? The same tools work there as an MCP server, no key needed: see <a id="mcpLink" href="https://github.com/akashhalgekar/supply-chain-optimization#use-it-in-claude-desktop-mcp" target="_blank" rel="noopener">the setup on GitHub</a>.</p>
+  </form>
+
+  <div class="thread" id="thread" aria-live="polite" hidden>
+    <div class="suggest" id="suggest">
+      <h3>Your supply chain</h3>
+      <button>I sell about 400 units a week, give or take 120. My supplier takes 2 weeks but is often a few days late. How much safety stock do I need?</button>
+      <button>We order one SKU every week. A purchase order costs $180 to place and a unit costs $0.40 a week to hold. Weekly demand for the next 8 weeks: 120, 90, 300, 40, 220, 150, 80, 260. How often should we order?</button>
+      <button>I have warehouses in Reno and Memphis and I'm thinking of adding Columbus. Help me work out whether it's worth it.</button>
+      <h3>Tidewell example</h3>
+      <button>What happens to Tidewell if freight costs double?</button>
+      <button>Why does Tidewell's cheapest plan close Chicago?</button>
+    </div>
+  </div>
+  <form class="composer" id="askForm" hidden>
+    <textarea id="askInput" rows="1" maxlength="4000" placeholder="Describe your situation or ask a what-if" aria-label="Your question"></textarea>
+    <button type="submit" id="askSend">Ask</button>
+  </form>
+  <p class="ask-foot"><span id="keyState" hidden>Using your key with <span id="modelName"></span>. <button class="linkish" id="forget" type="button">Forget key</button><br></span>
+    Built by Akash Halgekar. Found this useful? <a href="mailto:ahalgekarworks@gmail.com?subject=About%20your%20Tidewell%20supply%20chain%20analyst">Say hello</a> or connect on <a href="https://www.linkedin.com/in/akash-halgekar-ab184622b/" target="_blank" rel="noopener">LinkedIn</a>.</p>
+</aside>
+
+    <section class="results" id="results">
+      <div class="panel map">
+        <h2 id="mapTitle">Network</h2>
+        <p class="lede">Squares are plants, circles are warehouses (DCs), dots are customer markets. A hollow circle is a warehouse the plan closes.</p>
+        <ul class="dcs" id="dcs"></ul>
+        <img id="map" alt="Map of plants, open warehouses and the markets each one serves">
+      </div>
+      <div class="two">
+        <div class="panel">
+          <h2>Where the money goes each week</h2>
+          <p class="lede">Production is most of the cost. Moving a dial shows which line it actually moves.</p>
+          <div class="rows" id="costs"></div>
+        </div>
+        <div class="panel">
+          <h2>Plant load in the busiest week</h2>
+          <p class="lede" id="plantLede">The black line is the planning limit. Plants are never planned past it, so there is room for breakdowns.</p>
+          <div class="rows" id="plants"></div>
+          <p class="foot" id="runs"></p>
+        </div>
+      </div>
+      <div class="panel">
+        <h2 id="ssTitle">Safety stock</h2>
+        <p class="lede" id="ssLede"></p>
+        <div class="rows" id="stock"></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="wrap pipe" id="pipe" hidden>
+  <div>
+    <p class="verdict">From messy exports to one clean model.</p>
+    <p class="verdict-sub">The raw ERP, warehouse and transport files are full of duplicates, cancelled orders and mixed units. Every fix is logged, and the load stops if units in do not equal units out.</p>
+  </div>
+  <div class="panel"><h2>How the data reaches the model</h2><img id="flow" alt="Flowchart from raw system files to the three models" style="width:100%"></div>
+  <div class="panel"><h2>What the cleaning removed</h2><table id="log"></table></div>
+</div>
+
+<aside class="drawer" id="drawer" aria-label="Ask the model" aria-hidden="true">
+  <header>
+    <h2>Ask the model <button class="close" id="askClose" aria-label="Close">×</button></h2>
+    <p>An AI analyst that answers what-ifs by running this model, so scenario numbers are real results, not guesses.</p>
+  </header>
+  <div class="thread" id="thread" aria-live="polite">
+    <div class="suggest" id="suggest">
+      <button>What happens if freight costs double?</button>
+      <button>Why does the cheapest plan close Chicago?</button>
+      <button>What if the Dallas plant goes down?</button>
+      <button>How much safety stock is caused by late trucks?</button>
+      <button>How much can demand grow before the network breaks?</button>
+    </div>
+  </div>
+  <form class="composer" id="askForm">
+    <textarea id="askInput" rows="1" maxlength="500" placeholder="Ask a what-if, e.g. what if rent doubles?" aria-label="Your question"></textarea>
+    <button type="submit" id="askSend">Ask</button>
+  </form>
+  <p class="ask-foot">Simulated company. Claude writes the answers from model runs and the project docs; a few questions per visitor per hour.</p>
+</aside>
 
 <script>
 const DIALS = {
@@ -331,6 +480,154 @@ function tab(n) {
     $("log").innerHTML = "<tr><th>Source</th><th>Step</th><th class='n'>Rows</th><th>Note</th></tr>" + d.quality_log.filter(q => q.rows_affected > 0).map(q => `<tr><td>${q.source}</td><td>${q.step}</td><td class="n num">${q.rows_affected.toLocaleString()}</td><td>${q.note}</td></tr>`).join(""); }); }
 }
 $("t1").onclick = () => tab(1); $("t2").onclick = () => tab(2);
+// ---- Ask the analyst -------------------------------------------------------------
+// Claude runs in YOUR browser on YOUR key: requests go straight to api.anthropic.com. When Claude asks for a
+// calculation, only that tool call comes to this site (/api/advisor/tool). The key is held in this variable only.
+const DIAL_LABEL = k => DIALS[k] ? DIALS[k].l : k;
+const TOOL_LABEL = {safety_stock:"Safety stock", lot_sizing:"Batch sizes", network_design:"Warehouse network", tidewell_scenario:"Tidewell"};
+let CFG = null, apiKey = "", model = "", askHistory = [], askBusy = false;
+fetch("/api/advisor").then(r => r.json()).then(c => {
+  CFG = c;
+  $("model").innerHTML = c.models.map(m => `<option value="${m.id}">${m.label}</option>`).join("");
+}).catch(() => {});
+
+function openAsk(on) {
+  $("drawer").classList.toggle("open", on); $("drawer").setAttribute("aria-hidden", !on); $("askOpen").setAttribute("aria-expanded", on);
+  if (on) setTimeout(() => (apiKey ? $("askInput") : $("apiKey")).focus(), 50);
+}
+function showChat(on) {
+  $("setup").hidden = on; $("thread").hidden = !on; $("askForm").hidden = !on; $("keyState").hidden = !on;
+  if (on) { $("modelName").textContent = (CFG.models.find(m => m.id === model) || {label:model}).label.replace(/ \(.*/, ""); $("askInput").focus(); }
+}
+$("askOpen").onclick = () => openAsk(true);
+$("askClose").onclick = () => openAsk(false);
+document.addEventListener("keydown", e => { if (e.key === "Escape" && $("drawer").classList.contains("open")) openAsk(false); });
+$("setup").onsubmit = e => {
+  e.preventDefault();
+  const k = $("apiKey").value.trim();
+  if (!CFG) { keyError("The analyst is still loading. Try again in a second."); return; }
+  if (!/^sk-ant-[A-Za-z0-9_\-]{20,}$/.test(k)) { keyError("That doesn't look like an Anthropic API key. It starts with sk-ant-."); return; }
+  apiKey = k; model = $("model").value; $("apiKey").value = ""; $("keyErr").hidden = true;
+  showChat(true);
+};
+function keyError(t) { $("keyErr").textContent = t; $("keyErr").hidden = false; }
+$("forget").onclick = () => { apiKey = ""; askHistory = []; showChat(false); $("apiKey").focus(); };
+document.querySelectorAll("#suggest button").forEach(b => b.onclick = () => send(b.textContent));
+$("askForm").onsubmit = e => { e.preventDefault(); send($("askInput").value); };
+$("askInput").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send($("askInput").value); } });
+
+function esc(t) { return t.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function inline(t) { return t.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/`([^`]+)`/g, "<code>$1</code>"); }
+function fmt(t) {
+  return esc(t).split(/\n{2,}/).map(p => {
+    const lines = p.split(/\n/).filter(l => l.trim());
+    if (lines.length && lines.every(l => /^\s*\|/.test(l))) {
+      const rows = lines.filter(l => !/^\s*\|[\s:|-]+\|\s*$/.test(l)).map(l => l.trim().replace(/^\||\|$/g, "").split("|").map(c => inline(c.trim())));
+      return "<table>" + rows.map((r, i) => "<tr>" + r.map(c => i ? `<td>${c}</td>` : `<th>${c}</th>`).join("") + "</tr>").join("") + "</table>";
+    }
+    const out = []; let list = null;
+    for (const l of lines) {
+      const ul = l.match(/^\s*[-•*] (.*)/), ol = l.match(/^\s*\d+[.)] (.*)/), h = l.match(/^\s*#{1,4} (.*)/);
+      const kind = ul ? "ul" : ol ? "ol" : null;
+      if (kind) { if (!list || list.kind !== kind) { list = {kind, items: []}; out.push(list); } list.items.push(inline((ul || ol)[1])); continue; }
+      list = null; out.push(h ? `<b>${inline(h[1])}</b>` : inline(l));
+    }
+    return out.map(x => typeof x === "string" ? `<p style="margin:0 0 8px">${x}</p>` : `<${x.kind}>${x.items.map(i => `<li>${i}</li>`).join("")}</${x.kind}>`).join("");
+  }).join("");
+}
+function add(cls, html) {
+  const d = document.createElement("div"); d.className = "msg " + cls; d.innerHTML = html;
+  $("thread").appendChild(d); $("thread").scrollTop = $("thread").scrollHeight; return d;
+}
+function receiptHTML(s, i) {
+  if (s.tool !== "tidewell_scenario") return `<div class="receipt">Calculated · ${esc(TOOL_LABEL[s.tool] || s.tool)}: <b>${esc(s.summary)}</b></div>`;
+  const parts = Object.entries(s.dials).map(([k, v]) => `${DIAL_LABEL(k)} ${DIALS[k] ? DIALS[k].f(v) : v}`);
+  if (s.open_warehouses) parts.push("warehouses fixed: " + s.open_warehouses.join(", "));
+  if (s.plant_down) parts.push(s.plant_down + " plant down");
+  const what = parts.length ? parts.join(" · ") : "base plan";
+  const result = s.feasible ? `${usd(s.weekly_cost_usd)} a week, ${s.open.length} warehouses open` : "no feasible plan";
+  const loadable = s.feasible && !s.open_warehouses && !s.plant_down && Object.keys(s.dials).every(k => DIALS[k]);
+  return `<div class="receipt">Ran Tidewell: <b>${esc(what)}</b> → ${esc(result)}${loadable ? `<br><button data-i="${i}">Show this on the dashboard</button>` : ""}</div>`;
+}
+
+class ApiError extends Error { constructor(status, msg) { super(msg); this.status = status; } }
+async function claude(messages, final) {
+  const tools = CFG.tools.map((t, i) => i === CFG.tools.length - 1 ? {...t, cache_control: {type: "ephemeral"}} : t);
+  const body = {model, max_tokens: CFG.limits.max_tokens, system: [{type: "text", text: CFG.system, cache_control: {type: "ephemeral"}}],
+                tools, messages};
+  if (final) body.tool_choice = {type: "none"};
+  let r;
+  try {
+    r = await fetch("https://api.anthropic.com/v1/messages", {method: "POST", body: JSON.stringify(body), headers: {
+      "content-type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true"}});
+  } catch (e) { throw new ApiError(0, "Couldn't reach Anthropic. Check your connection and try again."); }
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new ApiError(r.status, (d.error && d.error.message) || `Anthropic returned an error (${r.status}).`);
+  return d;
+}
+async function runTool(block) {
+  try {
+    const r = await fetch("/api/advisor/tool", {method: "POST", headers: {"Content-Type": "application/json"},
+                                                body: JSON.stringify({name: block.name, input: block.input || {}})});
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) return {content: d.error || (r.status === 422 ? "The tool input was not a valid object." : `The calculator returned ${r.status}.`), is_error: true};
+    return d;
+  } catch (e) { return {content: "The calculator could not be reached.", is_error: true}; }
+}
+function friendly(e) {
+  if (e.status === 401) return "Anthropic didn't accept that API key. Press Forget key below and paste it again.";
+  if (e.status === 403) return "This API key isn't allowed to use that model. Try the other model, or check the key's permissions.";
+  if (e.status === 429) return "Your Anthropic account hit a rate limit. Wait a minute and try again.";
+  if (e.status === 529 || e.status >= 500) return "Anthropic is busy right now. Try again in a minute.";
+  if (/credit balance/i.test(e.message)) return "Your Anthropic account is out of credit. Add credit at console.anthropic.com, then try again.";
+  return e.message;
+}
+async function send(text) {
+  text = (text || "").trim();
+  if (!text || askBusy || !apiKey) return;
+  askBusy = true; $("askSend").disabled = true; $("askInput").value = "";
+  $("suggest").hidden = true;
+  add("you", esc(text));
+  const wait = add("bot typing", "Thinking…");
+  const L = CFG.limits, receipts = [];
+  const messages = askHistory.slice(-L.history_turns).concat([{role: "user", content: text}]);
+  let resp = null, calls = 0, err = null;
+  try {
+    for (let round = 0; ; round++) {
+      resp = await claude(messages, round >= L.max_tool_rounds);
+      if (resp.stop_reason !== "tool_use") break;
+      const results = [];
+      for (const b of resp.content.filter(b => b.type === "tool_use")) {
+        if (calls >= L.max_tool_calls) {
+          results.push({type: "tool_result", tool_use_id: b.id, is_error: true, content: `Limit of ${L.max_tool_calls} calculations per question reached. Answer with the results you have.`});
+          continue;
+        }
+        calls++;
+        wait.textContent = `Calculating: ${TOOL_LABEL[b.name] || b.name}…`;
+        const r = await runTool(b);
+        if (r.receipt) receipts.push(r.receipt);
+        results.push({type: "tool_result", tool_use_id: b.id, content: r.content, ...(r.is_error ? {is_error: true} : {})});
+      }
+      messages.push({role: "assistant", content: resp.content}, {role: "user", content: results});
+      wait.textContent = "Writing up…";
+    }
+  } catch (e) { err = e; }
+  wait.remove();
+  if (err) { add("bot err", `<div class="body">${esc(friendly(err))}</div>`); }
+  else {
+    let answer = resp.content.filter(b => b.type === "text").map(b => b.text).join("").trim();
+    if (resp.stop_reason === "max_tokens") answer += "\n\n…(cut short; ask for the rest)";
+    if (!answer) answer = "I ran the numbers but couldn't finish the write-up. Try asking a narrower question.";
+    const el = add("bot", `<div class="body">${fmt(answer)}</div>` + receipts.map(receiptHTML).join(""));
+    el.querySelectorAll(".receipt button").forEach(b => b.onclick = () => {
+      setState(receipts[+b.dataset.i].dials);
+      if (window.innerWidth < 900) openAsk(false);
+    });
+    askHistory.push({role: "user", content: text}, {role: "assistant", content: answer});
+  }
+  askBusy = false; $("askSend").disabled = false; $("askInput").focus();
+}
 </script>
 </body>
 </html>
