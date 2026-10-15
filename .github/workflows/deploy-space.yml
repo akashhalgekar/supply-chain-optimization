@@ -1,7 +1,8 @@
 name: deploy to Hugging Face
 
 # Publishes the live dashboard to a Hugging Face Space whenever main changes.
-# Needs two repository secrets: HF_TOKEN (a Hugging Face write token) and ANTHROPIC_API_KEY (turns on Ask the model).
+# Needs one repository secret: HF_TOKEN (a Hugging Face write token). No Anthropic key is ever deployed: the AI analyst
+# runs on each visitor's own key, in their browser, so the site costs the owner nothing in tokens.
 # Without HF_TOKEN this job does nothing, so forks and early setups stay green.
 
 on:
@@ -15,7 +16,6 @@ jobs:
     timeout-minutes: 15
     env:
       HF_TOKEN: ${{ secrets.HF_TOKEN }}
-      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       SPACE_NAME: tidewell
     steps:
       - uses: actions/checkout@v4
@@ -34,8 +34,6 @@ jobs:
           api = HfApi(token=os.environ["HF_TOKEN"])
           repo = f"{api.whoami()['name']}/{os.environ['SPACE_NAME']}"
           api.create_repo(repo, repo_type="space", space_sdk="docker", exist_ok=True)
-          if os.environ.get("ANTHROPIC_API_KEY"):
-              api.add_space_secret(repo, "ANTHROPIC_API_KEY", os.environ["ANTHROPIC_API_KEY"])
           import shutil, tempfile
           stage = tempfile.mkdtemp()
           for d in ("tidewell", "web", "data"):

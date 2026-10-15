@@ -1,6 +1,6 @@
 """Small web API and dashboard.   uvicorn tidewell.api:app --port 8000   then open http://localhost:8000"""
 import base64, io, os
-from typing import List, Literal
+from typing import Any, Dict
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel, Field
@@ -10,7 +10,7 @@ app = FastAPI(title="Tidewell supply chain optimiser", version="1.0")
 CO, TABLES = store.build()
 WEB = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "web")
 _cache = {}
-ASSISTANT = assistant.Assistant(CO) if assistant.enabled() else None     # switched off unless ANTHROPIC_API_KEY is set
+TOOLBOX = assistant.Toolbox(CO)       # the AI analyst's tools; Claude itself runs in the visitor's browser on their own key
 LIMITER = assistant.Limiter()
 
 
@@ -87,35 +87,33 @@ def lineage():
     return _cache["lineage"]
 
 
-class Turn(BaseModel):
-    role: Literal["user", "assistant"]
-    content: str = Field(max_length=4000)
+class ToolCall(BaseModel):
+    name: str = Field(max_length=64)
+    input: Dict[str, Any] = Field(default_factory=dict)
 
 
-class Question(BaseModel):
-    question: str = Field(min_length=1, max_length=500)
-    history: List[Turn] = Field(default_factory=list, max_length=8)
+@app.get("/api/advisor")
+def advisor():
+    """What the browser needs to talk to Claude: the system prompt, the tools, model choices and limits.
+    No key lives here. The visitor's browser sends their own key straight to Anthropic."""
+    return {"system": assistant.SYSTEM, "tools": TOOLBOX.tools, "models": [{"id": m, "label": l} for m, l in assistant.MODELS],
+            "limits": assistant.LIMITS, "contact": assistant.CONTACT}
 
 
-@app.get("/api/ask/status")
-def ask_status():
-    return {"enabled": ASSISTANT is not None}
-
-
-@app.post("/api/ask")
-def ask(q: Question, request: Request):
-    """Ask Tidewell: Claude answers by running the model (see tidewell/assistant.py). Capped per visitor and per day."""
-    if ASSISTANT is None:
-        return JSONResponse(status_code=503, content={"error": "The AI analyst is switched off on this copy of the dashboard."})
+@app.post("/api/advisor/tool")
+def advisor_tool(call: ToolCall, request: Request):
+    """Run one tool call that Claude asked for. Pure computation: no API key, no tokens, nothing stored."""
     # The first X-Forwarded-For entry is the visitor as the host's proxy reports it. A visitor can fake it, so the
-    # site-wide hourly and daily caps in Limiter are what actually bound the cost.
+    # site-wide hourly cap is what actually bounds the CPU.
     forwarded = request.headers.get("x-forwarded-for", "")
     who = forwarded.split(",")[0].strip() or (request.client.host if request.client else "unknown")
     ok, message = LIMITER.allow(who)
     if not ok:
         return JSONResponse(status_code=429, content={"error": message})
     try:
-        return ASSISTANT.ask(q.question.strip(), [t.model_dump() for t in q.history])
-    except assistant.AssistantError as e:
-        LIMITER.refund(who)
-        return JSONResponse(status_code=502, content={"error": str(e)})
+        out, receipt = TOOLBOX.call(call.name, call.input)
+        return {"content": assistant.as_text(out), "is_error": False, "receipt": receipt}
+    except ValueError as e:
+        return {"content": str(e), "is_error": True, "receipt": None}
+    except Exception:                                        # solver or data failure: tell the model, keep the server up
+        return {"content": "The calculation could not run with these inputs. Try different settings.", "is_error": True, "receipt": None}

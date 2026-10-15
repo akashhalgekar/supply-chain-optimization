@@ -53,20 +53,49 @@ The case structure was inspired by a Supply Science video; see [docs/ATTRIBUTION
 
 [docs/AUDIT.md](docs/AUDIT.md) lists the mistakes a supply chain manager would spot in a project like this and how each was fixed.
 
-## Ask the model
+## Ask the analyst: your own supply chain, not just Tidewell
 
-The dashboard has an AI analyst (Claude). Ask "what if freight doubles?" or "what if the Dallas plant goes down?" and it
-answers by **running this model** through a tool, then explains the trade-off. Scenario numbers come only from model
-runs; fixed facts (method, checks, limits) come from the project docs. Each scenario it runs is shown under the answer,
-and dial-only scenarios can be loaded on the dashboard with one click.
+The dashboard has an AI analyst (Claude) that works on **the visitor's own problem**. Describe your situation in plain
+words ("I sell about 400 units a week, give or take 120, and my supplier is often late") and Claude turns it into the
+right calculation, runs it, and ends with **What to do next**: two or three concrete actions tied to the numbers.
 
-- How it works: `tidewell/assistant.py` gives Claude one tool, `run_scenario`, which calls the same chain as the dashboard
-  inside the slider ranges. Fixed facts about the method, checks and limits sit in the system prompt.
-- Cost control: a per-visitor hourly limit plus site-wide hourly and daily caps (`TIDEWELL_ASK_PER_HOUR`,
-  `TIDEWELL_ASK_SITE_HOUR`, `TIDEWELL_ASK_PER_DAY`), at most 6 model runs per question; the caps live in memory, so they
-  reset when the app restarts. The model is set with `TIDEWELL_MODEL` (default `claude-sonnet-5-5`).
-- It is off unless `ANTHROPIC_API_KEY` is set; everything else works without it.
-- `python -m tidewell.assistant_check` tests it without a key, using a scripted stand-in for Claude.
+| Tool | What it answers | Method (same as in Tidewell) |
+| --- | --- | --- |
+| `safety_stock` | How much buffer, the reorder point, how much of it late deliveries cause, what 99% service costs | z x sqrt(LT x sd_D^2 + D^2 x sd_LT^2), fill rate from the loss function |
+| `lot_sizing` | How often to run or order, against lot-for-lot and EOQ | Wagner-Whitin dynamic programme |
+| `network_design` | Which warehouses to run and who serves whom, and what each open/close decision is worth | facility location MIP (PuLP/CBC) |
+| `tidewell_scenario` | What-ifs on the worked example | the full Tidewell chain |
+
+Every number comes from code, never from the model's memory. Each calculation is shown under the answer.
+
+**Nobody pays for anyone else's tokens.** The visitor brings their own Anthropic API key. The page calls Claude straight
+from their browser, and the key is held in that tab only. When Claude asks for a calculation, only that tool call
+comes to this server (`POST /api/advisor/tool`), which is pure computation. The server holds no key and never imports the
+Anthropic SDK; a check fails the build if that ever changes. A per-visitor and site-wide hourly cap guards the server's
+CPU (`TIDEWELL_TOOL_PER_HOUR`, `TIDEWELL_TOOL_SITE_HOUR`).
+
+### Use it in Claude Desktop (MCP)
+
+The same four tools also run as an MCP server, the way Samir Saci connects his network optimiser to Claude. Nothing to
+pay beyond your own Claude plan, and no key to paste:
+
+```bash
+pip install -r requirements.txt
+python -m tidewell.mcp_server        # MCP over stdio
+```
+
+```json
+{"mcpServers": {"tidewell": {"command": "python", "args": ["-m", "tidewell.mcp_server"],
+                             "cwd": "/path/to/supply-chain-optimization"}}}
+```
+
+Add that to Claude Desktop's config (Settings, Developer, Edit config) and restart it. The server also offers a
+`supply_chain_analyst` prompt with the same instructions the website uses.
+
+How the pieces fit: `tidewell/calculators.py` (the three calculators), `tidewell/assistant.py` (system prompt, tool
+definitions, one `Toolbox` that runs them), `tidewell/api.py` (website endpoints), `tidewell/mcp_server.py` (MCP), and
+`python -m tidewell.assistant_check` (74 checks, no key needed: calculators against hand formulas and brute force,
+the Tidewell tool against direct runs, the endpoints, and the MCP server).
 
 ## Run it
 
@@ -76,11 +105,10 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 .venv/bin/python verify.py                       # checks on Tidewell, its inputs and the documents (about 3 minutes)
 .venv/bin/python -m tidewell.robustness          # the same checks on 10 other synthetic companies (about 3 minutes)
 .venv/bin/uvicorn tidewell.api:app --port 8000   # dashboard at http://localhost:8000
-ANTHROPIC_API_KEY=... .venv/bin/uvicorn tidewell.api:app --port 8000   # same, with Ask the model switched on
 ```
 
 The live version is a Docker image (`Dockerfile`) deployed to Hugging Face Spaces by `.github/workflows/deploy-space.yml`
-whenever `main` changes, using the repository secrets `HF_TOKEN` and `ANTHROPIC_API_KEY`.
+whenever `main` changes, using one repository secret, `HF_TOKEN`. No Anthropic key is deployed.
 
 ## Layout
 
@@ -95,7 +123,7 @@ whenever `main` changes, using the repository secrets `HF_TOKEN` and `ANTHROPIC_
 | `tidewell/chain.py` | the three models in sequence, with the scorecard |
 | `tidewell/analytics.py` | savings, DC set comparison, stress tests, sensitivity, cost to serve |
 | `tidewell/api.py`, `web/` | API and dashboard |
-| `tidewell/assistant.py`, `assistant_check.py` | Ask the model: Claude with a run-the-model tool, visitor limits, and its checks |
+| `tidewell/calculators.py`, `assistant.py`, `mcp_server.py`, `assistant_check.py` | the AI analyst: calculators for a visitor's own data, tool definitions, the MCP server, and their checks |
 | `tidewell/checks.py`, `verify.py` | checks that hold for any company, plus Tidewell-only checks on inputs and documents |
 | `tidewell/synthetic.py`, `robustness.py` | generator of other synthetic companies and the robustness test |
 | `data/raw`, `data/warehouse` | messy extracts and clean tables |

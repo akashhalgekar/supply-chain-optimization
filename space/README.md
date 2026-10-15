@@ -16,7 +16,7 @@ a simulated US drinks company where one chain decides which warehouses to run, w
 safety stock each warehouse holds.
 
 - Move the dials or pick a scenario: the whole chain re-solves on every change.
-- **Ask the model**: an AI analyst (Claude) that answers questions by running this model, so its numbers are real results.
+- **Ask the analyst**: describe a stock, batching or warehouse problem from your own business (or a Tidewell what-if) and Claude works it out with the same models, so the numbers are calculated, not guessed. Uses your own Anthropic API key, which stays in your browser.
 
 This Space is deployed automatically from the GitHub repo. The data is simulated; see the repo for the method, the
 checks and the limits.

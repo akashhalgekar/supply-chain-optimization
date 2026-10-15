@@ -1,5 +1,6 @@
 # The live Tidewell dashboard, as hosted on Hugging Face Spaces (port 7860).
-# Build and run locally:  docker build -t tidewell .  &&  docker run -p 7860:7860 -e ANTHROPIC_API_KEY=... tidewell
+# Build and run locally:  docker build -t tidewell .  &&  docker run -p 7860:7860 tidewell
+# No API key goes in here: the AI analyst runs on each visitor's own key, in their browser.
 FROM python:3.12-slim
 RUN useradd -m -u 1000 user
 WORKDIR /home/user/app
