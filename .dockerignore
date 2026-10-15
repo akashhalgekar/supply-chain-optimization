@@ -1,0 +1,5 @@
+.git
+output
+charts
+docs
+**/__pycache__

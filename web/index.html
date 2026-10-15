@@ -19,7 +19,7 @@
   }
   * { box-sizing:border-box }
   body { margin:0; background:var(--glass); color:var(--slate); font:15px/1.55 var(--body); -webkit-font-smoothing:antialiased }
-  button, input { font:inherit; color:inherit }
+  button, input, textarea { font:inherit; color:inherit }
   :focus-visible { outline:3px solid var(--tide); outline-offset:2px; border-radius:4px }
   [hidden] { display:none !important }
   .num { font-variant-numeric:tabular-nums }
@@ -116,6 +116,36 @@
     .band { grid-template-columns:1fr 1fr } .metric { border-left:0 !important; border-top:1px solid var(--rule) } .metric:nth-child(-n+2) { border-top:0 }
     .row, .row.with-delta { grid-template-columns:100px 1fr 76px } .row .dcell { grid-column:3; margin-top:-6px }
   }
+
+  /* Ask the model */
+  .ask-open { margin-left:12px; border:1px solid var(--tide); background:var(--tide); color:#fff; border-radius:999px; padding:8px 16px; font-weight:600; font-size:14px; cursor:pointer }
+  .ask-open:hover { filter:brightness(1.08) }
+  .drawer { position:fixed; top:0; right:0; bottom:0; width:min(440px, 100vw); background:var(--panel); border-left:1px solid var(--rule); box-shadow:-12px 0 32px rgba(20,30,35,.12);
+            display:flex; flex-direction:column; z-index:20; transform:translateX(100%); transition:transform .22s ease }
+  .drawer.open { transform:none }
+  @media (prefers-reduced-motion: reduce) { .drawer { transition:none } }
+  .drawer header { padding:18px 20px 12px; border-bottom:1px solid var(--rule) }
+  .drawer header h2 { font-family:var(--display); font-stretch:85%; font-size:20px; margin:0; display:flex; justify-content:space-between; align-items:center }
+  .drawer header p { margin:4px 0 0; font-size:13px; color:var(--muted) }
+  .drawer .close { border:0; background:none; font-size:22px; line-height:1; cursor:pointer; color:var(--muted); padding:4px 8px }
+  .thread { flex:1; overflow-y:auto; padding:16px 20px; display:flex; flex-direction:column; gap:14px }
+  .suggest { display:flex; flex-wrap:wrap; gap:8px }
+  .suggest button { border:1px solid var(--rule); background:var(--glass); border-radius:999px; padding:7px 12px; font-size:13.5px; cursor:pointer; text-align:left }
+  .suggest button:hover { border-color:var(--tide) }
+  .msg { max-width:92%; font-size:14.5px; line-height:1.55 }
+  .msg.you { align-self:flex-end; background:var(--slate); color:var(--glass); padding:9px 13px; border-radius:14px 14px 4px 14px }
+  .msg.bot { align-self:flex-start }
+  .msg.bot .body { background:var(--glass); padding:11px 14px; border-radius:14px 14px 14px 4px }
+  .msg.err .body { background:var(--rust-soft); color:var(--rust) }
+  .receipt { margin-top:8px; font-size:12.5px; color:var(--muted); border-left:3px solid var(--tide); padding:4px 0 4px 10px }
+  .receipt b { color:var(--slate); font-weight:600 }
+  .receipt button { margin-top:6px; border:1px solid var(--tide); color:var(--tide); background:none; border-radius:999px; padding:3px 10px; font-size:12.5px; font-weight:600; cursor:pointer }
+  .typing { color:var(--muted); font-size:13.5px }
+  .composer { border-top:1px solid var(--rule); padding:12px 16px 16px; display:flex; gap:8px; align-items:flex-end }
+  .composer textarea { flex:1; resize:none; border:1px solid var(--rule); border-radius:12px; padding:10px 12px; background:var(--glass); min-height:44px; max-height:120px; font-size:14.5px }
+  .composer button { border:0; background:var(--tide); color:#fff; border-radius:12px; padding:11px 16px; font-weight:600; cursor:pointer }
+  .composer button:disabled { opacity:.5; cursor:default }
+  .ask-foot { font-size:11.5px; color:var(--muted); padding:0 16px 12px }
 </style>
 </head>
 <body>
@@ -125,6 +155,7 @@
     <button role="tab" id="t1" aria-selected="true">Plan the network</button>
     <button role="tab" id="t2" aria-selected="false">How the data was cleaned</button>
   </nav>
+  <button class="ask-open" id="askOpen" hidden aria-controls="drawer" aria-expanded="false">Ask the model</button>
 </header>
 
 <div class="wrap" id="opt">
@@ -187,6 +218,27 @@
   <div class="panel"><h2>How the data reaches the model</h2><img id="flow" alt="Flowchart from raw system files to the three models" style="width:100%"></div>
   <div class="panel"><h2>What the cleaning removed</h2><table id="log"></table></div>
 </div>
+
+<aside class="drawer" id="drawer" aria-label="Ask the model" aria-hidden="true">
+  <header>
+    <h2>Ask the model <button class="close" id="askClose" aria-label="Close">×</button></h2>
+    <p>An AI analyst that answers by running this model, so every number is a real result, not a guess.</p>
+  </header>
+  <div class="thread" id="thread" aria-live="polite">
+    <div class="suggest" id="suggest">
+      <button>What happens if freight costs double?</button>
+      <button>Why does the cheapest plan close Chicago?</button>
+      <button>What if the Dallas plant goes down?</button>
+      <button>How much safety stock is caused by late trucks?</button>
+      <button>How much can demand grow before the network breaks?</button>
+    </div>
+  </div>
+  <form class="composer" id="askForm">
+    <textarea id="askInput" rows="1" maxlength="500" placeholder="Ask a what-if, e.g. what if rent doubles?" aria-label="Your question"></textarea>
+    <button type="submit" id="askSend">Ask</button>
+  </form>
+  <p class="ask-foot">Simulated company. Answers are written by Claude from model runs; a few questions per visitor per hour.</p>
+</aside>
 
 <script>
 const DIALS = {
@@ -331,6 +383,65 @@ function tab(n) {
     $("log").innerHTML = "<tr><th>Source</th><th>Step</th><th class='n'>Rows</th><th>Note</th></tr>" + d.quality_log.filter(q => q.rows_affected > 0).map(q => `<tr><td>${q.source}</td><td>${q.step}</td><td class="n num">${q.rows_affected.toLocaleString()}</td><td>${q.note}</td></tr>`).join(""); }); }
 }
 $("t1").onclick = () => tab(1); $("t2").onclick = () => tab(2);
+// ---- Ask the model -------------------------------------------------------------
+const DIAL_LABEL = k => DIALS[k] ? DIALS[k].l : k;
+let askHistory = [], askBusy = false;
+fetch("/api/ask/status").then(r => r.json()).then(d => { if (d.enabled) $("askOpen").hidden = false; }).catch(() => {});
+function openAsk(on) {
+  $("drawer").classList.toggle("open", on); $("drawer").setAttribute("aria-hidden", !on); $("askOpen").setAttribute("aria-expanded", on);
+  if (on) setTimeout(() => $("askInput").focus(), 50);
+}
+$("askOpen").onclick = () => openAsk(true);
+$("askClose").onclick = () => openAsk(false);
+document.addEventListener("keydown", e => { if (e.key === "Escape" && $("drawer").classList.contains("open")) openAsk(false); });
+document.querySelectorAll("#suggest button").forEach(b => b.onclick = () => send(b.textContent));
+$("askForm").onsubmit = e => { e.preventDefault(); send($("askInput").value); };
+$("askInput").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send($("askInput").value); } });
+
+function esc(t) { return t.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function fmt(t) {
+  return esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").split(/\n{2,}/).map(p =>
+    /^\s*[-•] /m.test(p) ? "<ul>" + p.split(/\n/).map(l => "<li>" + l.replace(/^\s*[-•] /, "") + "</li>").join("") + "</ul>" : "<p style='margin:0 0 8px'>" + p.replace(/\n/g, "<br>") + "</p>"
+  ).join("");
+}
+function add(cls, html) {
+  const d = document.createElement("div"); d.className = "msg " + cls; d.innerHTML = html;
+  $("thread").appendChild(d); $("thread").scrollTop = $("thread").scrollHeight; return d;
+}
+function receiptHTML(s, i) {
+  const parts = Object.entries(s.dials).map(([k, v]) => `${DIAL_LABEL(k)} ${DIALS[k] ? DIALS[k].f(v) : v}`);
+  if (s.open_warehouses) parts.push("warehouses fixed: " + s.open_warehouses.join(", "));
+  if (s.plant_down) parts.push(s.plant_down + " plant down");
+  const what = parts.length ? parts.join(" · ") : "base plan";
+  const result = s.feasible ? `${usd(s.weekly_cost_usd)} a week, ${s.open.length} warehouses open` : "no feasible plan";
+  const loadable = s.feasible && !s.open_warehouses && !s.plant_down && Object.keys(s.dials).every(k => DIALS[k]);
+  return `<div class="receipt">Ran the model: <b>${esc(what)}</b> → ${esc(result)}${loadable ? `<br><button data-i="${i}">Show this on the dashboard</button>` : ""}</div>`;
+}
+async function send(text) {
+  text = (text || "").trim();
+  if (!text || askBusy) return;
+  askBusy = true; $("askSend").disabled = true; $("askInput").value = "";
+  $("suggest").hidden = true;
+  add("you", esc(text));
+  const wait = add("bot typing", "Running the model…");
+  let d, ok = false;
+  try {
+    const r = await fetch("/api/ask", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({question:text, history:askHistory.slice(-6)})});
+    d = await r.json(); ok = r.ok;
+    if (!ok) d = {error: d.error || (r.status === 422 ? "Please keep questions under 500 characters." : `Something went wrong (${r.status}).`)};
+  } catch (e) { d = {error: "The model didn't respond. Check your connection and try again."}; }
+  wait.remove();
+  if (!ok) { add("bot err", `<div class="body">${esc(d.error)}</div>`); }
+  else {
+    const el = add("bot", `<div class="body">${fmt(d.answer)}</div>` + d.scenarios.map(receiptHTML).join(""));
+    el.querySelectorAll(".receipt button").forEach(b => b.onclick = () => {
+      setState(d.scenarios[+b.dataset.i].dials);
+      if (window.innerWidth < 900) openAsk(false);
+    });
+    askHistory.push({role:"user", content:text}, {role:"assistant", content:d.answer});
+  }
+  askBusy = false; $("askSend").disabled = false; $("askInput").focus();
+}
 </script>
 </body>
 </html>

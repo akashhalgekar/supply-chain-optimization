@@ -1,0 +1,27 @@
+name: container
+
+# Builds the exact image Hugging Face runs and checks the site answers, so a broken deploy shows up on the PR first.
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the image
+        run: docker build -t tidewell .
+      - name: Start it and check the dashboard and the assistant switch
+        run: |
+          docker run -d --name tw -p 7860:7860 tidewell
+          for i in $(seq 1 60); do curl -sf localhost:7860/api/defaults >/dev/null && break; sleep 2; done
+          curl -sf localhost:7860/ | grep -q "Tidewell"
+          curl -sf -X POST localhost:7860/api/run -H 'content-type: application/json' -d '{}' | python -c "import sys,json; d=json.load(sys.stdin); assert d['feasible'], d; print('weekly cost', round(d['kpi']['weekly_cost']))"
+          curl -sf localhost:7860/api/ask/status | grep -q '"enabled":false'
+          echo "Container serves the dashboard; Ask the model is off without a key, as expected."
+      - name: Logs on failure
+        if: failure()
+        run: docker logs tw || true

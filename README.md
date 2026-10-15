@@ -53,6 +53,19 @@ The case structure was inspired by a Supply Science video; see [docs/ATTRIBUTION
 
 [docs/AUDIT.md](docs/AUDIT.md) lists the mistakes a supply chain manager would spot in a project like this and how each was fixed.
 
+## Ask the model
+
+The dashboard has an AI analyst (Claude). Ask "what if freight doubles?" or "what if the Dallas plant goes down?" and it
+answers by **running this model** through a tool, then explains the trade-off. It never quotes a number it did not get
+from a model run, and each answer shows which scenario it ran, with a button to load it on the dashboard.
+
+- How it works: `tidewell/assistant.py` gives Claude one tool, `run_scenario`, which calls the same chain as the dashboard
+  inside the slider ranges. Fixed facts about the method, checks and limits sit in the system prompt.
+- Cost control: a per-visitor hourly limit and a site-wide daily cap (`TIDEWELL_ASK_PER_HOUR`, `TIDEWELL_ASK_PER_DAY`);
+  the model is set with `TIDEWELL_MODEL` (default `claude-sonnet-5-5`).
+- It is off unless `ANTHROPIC_API_KEY` is set; everything else works without it.
+- `python -m tidewell.assistant_check` tests it without a key, using a scripted stand-in for Claude.
+
 ## Run it
 
 ```bash
@@ -61,7 +74,11 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 .venv/bin/python verify.py                       # checks on Tidewell, its inputs and the documents (about 3 minutes)
 .venv/bin/python -m tidewell.robustness          # the same checks on 10 other synthetic companies (about 3 minutes)
 .venv/bin/uvicorn tidewell.api:app --port 8000   # dashboard at http://localhost:8000
+ANTHROPIC_API_KEY=... .venv/bin/uvicorn tidewell.api:app --port 8000   # same, with Ask the model switched on
 ```
+
+The live version is a Docker image (`Dockerfile`) deployed to Hugging Face Spaces by `.github/workflows/deploy-space.yml`
+whenever `main` changes, using the repository secrets `HF_TOKEN` and `ANTHROPIC_API_KEY`.
 
 ## Layout
 
@@ -76,6 +93,7 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 | `tidewell/chain.py` | the three models in sequence, with the scorecard |
 | `tidewell/analytics.py` | savings, DC set comparison, stress tests, sensitivity, cost to serve |
 | `tidewell/api.py`, `web/` | API and dashboard |
+| `tidewell/assistant.py`, `assistant_check.py` | Ask the model: Claude with a run-the-model tool, visitor limits, and its checks |
 | `tidewell/checks.py`, `verify.py` | checks that hold for any company, plus Tidewell-only checks on inputs and documents |
 | `tidewell/synthetic.py`, `robustness.py` | generator of other synthetic companies and the robustness test |
 | `data/raw`, `data/warehouse` | messy extracts and clean tables |

@@ -1,14 +1,17 @@
 """Small web API and dashboard.   uvicorn tidewell.api:app --port 8000   then open http://localhost:8000"""
 import base64, io, os
-from fastapi import FastAPI
+from typing import List, Literal
+from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel, Field
-from . import store, chain, plots, flow
+from . import store, chain, plots, flow, assistant
 
 app = FastAPI(title="Tidewell supply chain optimiser", version="1.0")
 CO, TABLES = store.build()
 WEB = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "web")
 _cache = {}
+ASSISTANT = assistant.Assistant(CO) if assistant.enabled() else None     # switched off unless ANTHROPIC_API_KEY is set
+LIMITER = assistant.Limiter()
 
 
 def _default(name, **bounds):
@@ -82,3 +85,34 @@ def lineage():
         _cache["lineage"] = {"flowchart": _png(lambda b: flow.draw(flow.facts_from(CO, TABLES, base), b)),
                              "quality_log": TABLES["data_quality_log"][["source", "step", "rows_affected", "note"]].to_dict(orient="records")}
     return _cache["lineage"]
+
+
+class Turn(BaseModel):
+    role: Literal["user", "assistant"]
+    content: str = Field(max_length=4000)
+
+
+class Question(BaseModel):
+    question: str = Field(min_length=1, max_length=500)
+    history: List[Turn] = Field(default_factory=list, max_length=8)
+
+
+@app.get("/api/ask/status")
+def ask_status():
+    return {"enabled": ASSISTANT is not None}
+
+
+@app.post("/api/ask")
+def ask(q: Question, request: Request):
+    """Ask Tidewell: Claude answers by running the model (see tidewell/assistant.py). Capped per visitor and per day."""
+    if ASSISTANT is None:
+        return JSONResponse(status_code=503, content={"error": "The AI analyst is switched off on this copy of the dashboard."})
+    forwarded = request.headers.get("x-forwarded-for", "")
+    who = forwarded.split(",")[0].strip() or (request.client.host if request.client else "unknown")
+    ok, message = LIMITER.allow(who)
+    if not ok:
+        return JSONResponse(status_code=429, content={"error": message})
+    try:
+        return ASSISTANT.ask(q.question.strip(), [t.model_dump() for t in q.history])
+    except assistant.AssistantError as e:
+        return JSONResponse(status_code=502, content={"error": str(e)})
