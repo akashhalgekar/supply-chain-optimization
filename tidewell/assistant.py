@@ -10,14 +10,19 @@ Settings (environment variables):
   TIDEWELL_MODEL           Claude model id, default claude-sonnet-5-5 (claude-haiku-5-5 is far cheaper)
   TIDEWELL_ASK_PER_HOUR    questions one visitor may ask per hour, default 10
   TIDEWELL_ASK_PER_DAY     questions the whole site may ask per day, default 200
+  TIDEWELL_ASK_SITE_HOUR   questions the whole site may ask per hour, default 60 (stops one visitor draining the day)
 """
 import json, os, threading, time
-from collections import defaultdict, deque
+from collections import OrderedDict, defaultdict, deque
 from . import chain
 
 MODEL = os.environ.get("TIDEWELL_MODEL", "claude-sonnet-5-5")
-MAX_TOOL_ROUNDS = 4
+MAX_TOOL_ROUNDS = 4              # model turns that may call the tool
+MAX_SCENARIOS = 6                # model runs per question, across all rounds
 MAX_TOKENS = 900
+CACHE_SIZE = 256                 # scenario results kept in memory
+HISTORY_TURNS = 6                # earlier messages sent back to the model
+HISTORY_CHARS = 1500             # per earlier message
 
 # Same ranges as the dashboard sliders, so the assistant can only run scenarios a visitor could run by hand.
 DIALS = {
@@ -73,8 +78,9 @@ deliveries depends on the assumed delivery spread (32% at half the spread, 77% a
 business calls.
 
 ## How to answer
-1. Any number about cost, warehouses, production, stock, service, capacity or CO2 must come from run_scenario in this \
-conversation. Call it with no arguments for the base plan. Never estimate, round from memory or invent a figure.
+1. Any number about a scenario or the current plan (cost, warehouses, production, stock, service, capacity, CO2) must \
+come from run_scenario in this conversation; call it with no arguments for the base plan. You may also quote the fixed \
+facts above, as documented facts. Never estimate, round from memory or invent any other figure.
 2. Translate what-if questions into the dials, for example "freight doubles" means rate_per_pallet_mile at twice the \
 base value, "suppliers twice as slow" means lead_time_scale 2. To test a warehouse decision, pass open_warehouses. To \
 test a plant outage, pass plant_down. If a request is outside the allowed range, say so and use the nearest allowed value.
@@ -107,7 +113,7 @@ class Assistant:
     def __init__(self, co, client=None, model=MODEL):
         self.co, self.model, self._client = co, model, client
         self.tools = _tools(co)
-        self._cache, self._lock = {}, threading.Lock()
+        self._cache, self._lock = OrderedDict(), threading.Lock()
         self._dc_code = {co.city(c): c for c in co.codes("dcs")}
         self._plant_code = {co.city(p): p for p in co.codes("plants")}
 
@@ -120,6 +126,14 @@ class Assistant:
 
     # ---- the tool --------------------------------------------------------------------------------------------
     def _validate(self, args):
+        try:
+            return self._validate_inner(args)
+        except (TypeError, AttributeError) as e:
+            raise ValueError(f"Inputs have the wrong type: {e}.") from None
+
+    def _validate_inner(self, args):
+        if not isinstance(args, dict):
+            raise ValueError("Inputs must be an object.")
         unknown = set(args) - set(DIALS) - {"open_warehouses", "plant_down"}
         if unknown:
             raise ValueError(f"Unknown inputs: {', '.join(sorted(unknown))}.")
@@ -132,12 +146,14 @@ class Assistant:
                 dials[k] = v
         dcs = args.get("open_warehouses")
         if dcs is not None:
+            if not isinstance(dcs, list):
+                raise ValueError(f"open_warehouses must be a list from {list(self._dc_code)}.")
             bad = [d for d in dcs if d not in self._dc_code]
             if bad or not dcs:
                 raise ValueError(f"open_warehouses must be a non-empty list from {list(self._dc_code)}.")
             dcs = tuple(sorted(self._dc_code[d] for d in dcs))
         plant = args.get("plant_down")
-        if plant is not None and plant not in self._plant_code:
+        if plant is not None and (not isinstance(plant, str) or plant not in self._plant_code):
             raise ValueError(f"plant_down must be one of {list(self._plant_code)}.")
         return dials, dcs, (self._plant_code[plant],) if plant else ()
 
@@ -145,10 +161,13 @@ class Assistant:
         key = (tuple(sorted(dials.items())), dcs, down)
         with self._lock:
             if key in self._cache:
+                self._cache.move_to_end(key)
                 return self._cache[key]
         r = chain.run(self.co, self.co.terms.with_(**dials), dc_set=list(dcs) if dcs else None, plants_down=down)
         with self._lock:
             self._cache[key] = r
+            while len(self._cache) > CACHE_SIZE:
+                self._cache.popitem(last=False)
         return r
 
     def run_scenario(self, args):
@@ -162,30 +181,59 @@ class Assistant:
         return out, receipt
 
     # ---- the conversation ------------------------------------------------------------------------------------
+    @staticmethod
+    def clean_history(history):
+        """Keep only well-formed, alternating user/assistant text turns, trimmed. Visitors send history, so trust none of it."""
+        turns = []
+        for t in history or ():
+            role, content = t.get("role"), str(t.get("content") or "").strip()[:HISTORY_CHARS]
+            if role not in ("user", "assistant") or not content:
+                continue
+            if turns and turns[-1]["role"] == role:
+                turns[-1] = {"role": role, "content": content}
+            else:
+                turns.append({"role": role, "content": content})
+        while turns and turns[0]["role"] != "user":
+            turns.pop(0)
+        if turns and turns[-1]["role"] == "user":
+            turns.pop()
+        return turns[-HISTORY_TURNS:]
+
     def ask(self, question, history=()):
-        messages = [{"role": t["role"], "content": t["content"]} for t in history if t.get("content")]
+        messages = self.clean_history(history)
         messages.append({"role": "user", "content": question})
-        receipts = []
-        for _ in range(MAX_TOOL_ROUNDS + 1):
+        receipts, runs, resp = [], 0, None
+        for round_ in range(MAX_TOOL_ROUNDS + 1):
             resp = self._call(messages)
             if resp.stop_reason != "tool_use":
+                break
+            if round_ == MAX_TOOL_ROUNDS:                       # out of rounds: do not run tools nobody will read
+                resp = None
                 break
             results = []
             for block in resp.content:
                 if block.type != "tool_use":
                     continue
+                if runs >= MAX_SCENARIOS:
+                    results.append({"type": "tool_result", "tool_use_id": block.id, "is_error": True,
+                                    "content": f"Limit of {MAX_SCENARIOS} model runs per question reached. Answer with the results you have."})
+                    continue
                 try:
                     if block.name != "run_scenario":
                         raise ValueError(f"Unknown tool {block.name}.")
-                    out, receipt = self.run_scenario(dict(block.input or {}))
+                    runs += 1
+                    out, receipt = self.run_scenario(block.input)
                     receipts.append(receipt)
                     results.append({"type": "tool_result", "tool_use_id": block.id, "content": json.dumps(out)})
                 except ValueError as e:
                     results.append({"type": "tool_result", "tool_use_id": block.id, "content": str(e), "is_error": True})
+                except Exception:                                    # solver or data failure: tell the model, not the visitor's browser
+                    results.append({"type": "tool_result", "tool_use_id": block.id, "is_error": True,
+                                    "content": "The model could not run that scenario. Try different settings."})
             messages += [{"role": "assistant", "content": resp.content}, {"role": "user", "content": results}]
-        else:
-            resp = None
         text = "".join(b.text for b in (resp.content if resp else []) if b.type == "text").strip()
+        if resp is not None and resp.stop_reason == "max_tokens" and text:
+            text += " …(answer cut short; ask a narrower question for the rest)"
         if not text:
             text = "I ran the model but could not finish the explanation. Try asking a narrower question."
         return {"answer": text, "scenarios": receipts, "model": self.model}
@@ -246,9 +294,11 @@ def summarise(co, r, base=None):
 class Limiter:
     """Keeps a public demo affordable: a per-visitor hourly limit and a site-wide daily cap."""
 
-    def __init__(self, per_hour=None, per_day=None, clock=time.time):
-        self.per_hour = int(per_hour or os.environ.get("TIDEWELL_ASK_PER_HOUR", 10))
-        self.per_day = int(per_day or os.environ.get("TIDEWELL_ASK_PER_DAY", 200))
+    def __init__(self, per_hour=None, per_day=None, site_per_hour=None, clock=time.time):
+        env = lambda name, default: int(os.environ.get(name, default))
+        self.per_hour = per_hour if per_hour is not None else env("TIDEWELL_ASK_PER_HOUR", 10)
+        self.per_day = per_day if per_day is not None else env("TIDEWELL_ASK_PER_DAY", 200)
+        self.site_per_hour = site_per_hour if site_per_hour is not None else env("TIDEWELL_ASK_SITE_HOUR", 60)
         self.clock, self._lock = clock, threading.Lock()
         self._visitor, self._site = defaultdict(deque), deque()
 
@@ -262,8 +312,18 @@ class Limiter:
                 self._site.popleft()
             if len(self._site) >= self.per_day:
                 return False, "The AI analyst has answered its daily limit of questions. The dashboard still works; try again tomorrow."
+            if sum(1 for t in self._site if now - t <= 3600) >= self.site_per_hour:
+                return False, "The AI analyst is busy right now. The dashboard still works; try again in a little while."
             if len(q) >= self.per_hour:
                 return False, f"You've asked {self.per_hour} questions in the last hour. Give it a little while, or use the dials meanwhile."
             q.append(now)
             self._site.append(now)
             return True, ""
+
+    def refund(self, who):
+        """Give a question back when the answer failed on our side."""
+        with self._lock:
+            if self._visitor[who]:
+                self._visitor[who].pop()
+            if self._site:
+                self._site.pop()

@@ -36,12 +36,16 @@ jobs:
           api.create_repo(repo, repo_type="space", space_sdk="docker", exist_ok=True)
           if os.environ.get("ANTHROPIC_API_KEY"):
               api.add_space_secret(repo, "ANTHROPIC_API_KEY", os.environ["ANTHROPIC_API_KEY"])
-          api.upload_folder(repo_id=repo, repo_type="space", folder_path=".",
-                            allow_patterns=["tidewell/**", "web/**", "data/**", "requirements.txt", "Dockerfile", ".dockerignore"],
-                            ignore_patterns=["**/__pycache__/**"], delete_patterns=["tidewell/**", "web/**", "data/**"],
+          import shutil, tempfile
+          stage = tempfile.mkdtemp()
+          for d in ("tidewell", "web", "data"):
+              shutil.copytree(d, f"{stage}/{d}", ignore=shutil.ignore_patterns("__pycache__"))
+          for f in ("requirements.txt", "Dockerfile", ".dockerignore"):
+              shutil.copy(f, stage)
+          shutil.copy("space/README.md", f"{stage}/README.md")
+          api.upload_folder(repo_id=repo, repo_type="space", folder_path=stage,
+                            delete_patterns=["tidewell/**", "web/**", "data/**"],
                             commit_message=f"Deploy {os.environ.get('GITHUB_SHA', '')[:7]} from GitHub")
-          api.upload_file(repo_id=repo, repo_type="space", path_or_fileobj="space/README.md", path_in_repo="README.md",
-                          commit_message="Space card")
           user, name = repo.split("/")
           print(f"Live at https://huggingface.co/spaces/{repo}  (app: https://{user.lower()}-{name}.hf.space)")
           PY

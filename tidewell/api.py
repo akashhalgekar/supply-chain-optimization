@@ -107,6 +107,8 @@ def ask(q: Question, request: Request):
     """Ask Tidewell: Claude answers by running the model (see tidewell/assistant.py). Capped per visitor and per day."""
     if ASSISTANT is None:
         return JSONResponse(status_code=503, content={"error": "The AI analyst is switched off on this copy of the dashboard."})
+    # The first X-Forwarded-For entry is the visitor as the host's proxy reports it. A visitor can fake it, so the
+    # site-wide hourly and daily caps in Limiter are what actually bound the cost.
     forwarded = request.headers.get("x-forwarded-for", "")
     who = forwarded.split(",")[0].strip() or (request.client.host if request.client else "unknown")
     ok, message = LIMITER.allow(who)
@@ -115,4 +117,5 @@ def ask(q: Question, request: Request):
     try:
         return ASSISTANT.ask(q.question.strip(), [t.model_dump() for t in q.history])
     except assistant.AssistantError as e:
+        LIMITER.refund(who)
         return JSONResponse(status_code=502, content={"error": str(e)})

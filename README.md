@@ -56,13 +56,15 @@ The case structure was inspired by a Supply Science video; see [docs/ATTRIBUTION
 ## Ask the model
 
 The dashboard has an AI analyst (Claude). Ask "what if freight doubles?" or "what if the Dallas plant goes down?" and it
-answers by **running this model** through a tool, then explains the trade-off. It never quotes a number it did not get
-from a model run, and each answer shows which scenario it ran, with a button to load it on the dashboard.
+answers by **running this model** through a tool, then explains the trade-off. Scenario numbers come only from model
+runs; fixed facts (method, checks, limits) come from the project docs. Each scenario it runs is shown under the answer,
+and dial-only scenarios can be loaded on the dashboard with one click.
 
 - How it works: `tidewell/assistant.py` gives Claude one tool, `run_scenario`, which calls the same chain as the dashboard
   inside the slider ranges. Fixed facts about the method, checks and limits sit in the system prompt.
-- Cost control: a per-visitor hourly limit and a site-wide daily cap (`TIDEWELL_ASK_PER_HOUR`, `TIDEWELL_ASK_PER_DAY`);
-  the model is set with `TIDEWELL_MODEL` (default `claude-sonnet-5-5`).
+- Cost control: a per-visitor hourly limit plus site-wide hourly and daily caps (`TIDEWELL_ASK_PER_HOUR`,
+  `TIDEWELL_ASK_SITE_HOUR`, `TIDEWELL_ASK_PER_DAY`), at most 6 model runs per question; the caps live in memory, so they
+  reset when the app restarts. The model is set with `TIDEWELL_MODEL` (default `claude-sonnet-5-5`).
 - It is off unless `ANTHROPIC_API_KEY` is set; everything else works without it.
 - `python -m tidewell.assistant_check` tests it without a key, using a scripted stand-in for Claude.
 
